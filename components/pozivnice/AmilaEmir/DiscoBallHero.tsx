@@ -164,6 +164,13 @@ export default function DiscoBallHero({ audioRef, onMusicStarted, onDone }: Prop
       if (spinningRef.current) return
       dragRef.current = { active: true, lastX: e.clientX, velocity: 0 }
       wrap.setPointerCapture(e.pointerId)
+      // Unlock audio on first touch (required for iOS/mobile)
+      if (audioRef?.current && audioRef.current.paused) {
+        audioRef.current.play().then(() => {
+          audioRef.current!.pause()
+          audioRef.current!.currentTime = 0
+        }).catch(() => {})
+      }
     }
 
     const onMove = (e: PointerEvent) => {
