@@ -142,9 +142,17 @@ export default function DiscoBallHero({ audioRef, onMusicStarted, onDone }: Prop
     const wrap = wrapRef.current
     if (!ball || !wrap) return
 
-    const triggerSpin = () => {
+    const triggerSpin = (velocity: number) => {
       if (spinningRef.current) return
       spinningRef.current = true
+
+      // Map swipe velocity to animation duration (faster swipe = shorter duration)
+      const speed = Math.abs(velocity)
+      const duration = Math.max(0.5, Math.min(3.5, 3.5 - (speed - 4) * 0.07))
+      ball.style.animationDuration = `${duration}s`
+      const middle = ball.querySelector('.disco-ball-middle') as HTMLElement
+      if (middle) middle.style.animationDuration = `${duration}s`
+
       ball.classList.add('is-spinning')
       ball.style.transform = ''
       setLightsOn(true)
@@ -185,7 +193,7 @@ export default function DiscoBallHero({ audioRef, onMusicStarted, onDone }: Prop
     const onUp = () => {
       if (!dragRef.current.active || spinningRef.current) return
       dragRef.current.active = false
-      if (Math.abs(dragRef.current.velocity) > 4) triggerSpin()
+      if (Math.abs(dragRef.current.velocity) > 4) triggerSpin(dragRef.current.velocity)
     }
 
     wrap.addEventListener('pointerdown', onDown)
