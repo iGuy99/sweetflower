@@ -178,7 +178,7 @@ export default function DiscoBallHero({ audioRef, onMusicStarted, onDone }: Prop
       const delta = e.clientX - dragRef.current.lastX
       dragRef.current.velocity = delta
       dragRef.current.lastX = e.clientX
-      rotationRef.current += delta * 0.8
+      rotationRef.current -= delta * 0.8
       ball.style.transform = `rotateX(90deg) rotateZ(${rotationRef.current}deg)`
     }
 
