@@ -41,7 +41,7 @@ const CONFIG = {
   schedule: [
     { time: '17:00', icon: 'camera', title: 'Dolazak gostiju', description: 'Dobrodošli!' },
     { time: '18:00', icon: 'ceremony', title: 'Ceremonija', description: 'Hotel Monti Igman' },
-    { time: '18:30', icon: 'dinner', title: 'Večera', description: 'Ulazak mladenaca' },
+    { time: '18:30', icon: 'dinner', title: 'Večera', description: 'Svečani banket' },
     { time: '19:00', icon: 'party', title: 'Party is on!', description: 'Otvaramo plesni podij!' },
   ],
   dressCode: { type: 'Funky Summer' },
