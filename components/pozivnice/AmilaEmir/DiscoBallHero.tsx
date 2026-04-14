@@ -158,11 +158,16 @@ export default function DiscoBallHero({ audioRef, onMusicStarted, onDone }: Prop
       setLightsOn(true)
 
       if (audioRef?.current) {
-        audioRef.current.currentTime = 0
-        audioRef.current.volume = 1
-        const p = audioRef.current.play()
-        if (p) p.catch(() => {})
+        const audio = audioRef.current
+        console.log('[audio] triggerSpin — paused:', audio.paused, 'muted:', audio.muted, 'volume:', audio.volume, 'readyState:', audio.readyState)
+        audio.currentTime = 0
+        audio.volume = 1
+        audio.muted = false
+        const p = audio.play()
+        if (p) p.then(() => console.log('[audio] play() success')).catch(e => console.warn('[audio] play() failed:', e))
         if (onMusicStarted) onMusicStarted()
+      } else {
+        console.warn('[audio] audioRef.current is null')
       }
 
       setTimeout(() => setOutro(true), 2400)
@@ -173,11 +178,16 @@ export default function DiscoBallHero({ audioRef, onMusicStarted, onDone }: Prop
       dragRef.current = { active: true, lastX: e.clientX, velocity: 0 }
       wrap.setPointerCapture(e.pointerId)
       // Unlock audio on first touch (required for iOS/mobile)
-      if (audioRef?.current && audioRef.current.paused) {
-        audioRef.current.play().then(() => {
-          audioRef.current!.pause()
-          audioRef.current!.currentTime = 0
-        }).catch(() => {})
+      if (audioRef?.current) {
+        const audio = audioRef.current
+        console.log('[audio] onDown — paused:', audio.paused, 'muted:', audio.muted, 'volume:', audio.volume, 'readyState:', audio.readyState)
+        if (audio.paused) {
+          audio.play().then(() => {
+            console.log('[audio] unlock play() success, pausing')
+            audio.pause()
+            audio.currentTime = 0
+          }).catch(e => console.warn('[audio] unlock play() failed:', e))
+        }
       }
     }
 
