@@ -32,8 +32,6 @@ export default function AdminLogin({ slug }: Props) {
       body: JSON.stringify({ slug, username: credentials.username, password: credentials.password }),
     })
 
-    const debugInfo = `status: ${res.status} | ok: ${res.ok} | cookies: ${document.cookie || 'NONE'}`
-    alert(debugInfo)
     if (res.ok) {
       router.push(`/pozivnice/${slug}/admin`)
       router.refresh()
@@ -68,6 +66,9 @@ export default function AdminLogin({ slug }: Props) {
               value={credentials.username}
               onChange={e => setCredentials({ ...credentials, username: e.target.value })}
               placeholder="Unesite korisničko ime"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               required
             />
           </div>
@@ -83,6 +84,9 @@ export default function AdminLogin({ slug }: Props) {
               value={credentials.password}
               onChange={e => setCredentials({ ...credentials, password: e.target.value })}
               placeholder="Unesite lozinku"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               required
             />
           </div>
