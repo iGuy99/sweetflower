@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Alex+Brush&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap');
 
 /* ===================================
    ADMIN PANEL STILOVI
@@ -6,12 +6,17 @@
 
 /* Varijable (iste kao main page) */
 :root {
-  --admin-maroon: #500614;
-  --admin-cream: #F5F0E8;
-  --admin-dark: #2C2C2C;
+  --admin-maroon: #7a4e5e;
+  --admin-maroon-light: #c4899a;
+  --admin-cream: #f9f6f1;
+  --admin-cream-dark: #f0e8dc;
+  --admin-dark: #4a3535;
+  --admin-text-medium: #8a7070;
+  --admin-gold: #e5d4a4;
+  --admin-gold-dark: #c9b882;
   --admin-success: #27ae60;
-  --admin-error: #e74c3c;
-  --admin-border: rgba(80, 6, 20, 0.2);
+  --admin-error: #c0565a;
+  --admin-border: rgba(122, 78, 94, 0.2);
 }
 
 /* ===================================
@@ -22,7 +27,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--admin-cream) 0%, #E8E0D5 100%);
+  background: linear-gradient(135deg, var(--admin-cream) 0%, var(--admin-cream-dark) 100%);
   padding: 20px;
   position: relative;
 }
@@ -35,7 +40,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.95rem;
   color: var(--admin-maroon);
   text-decoration: none;
@@ -94,7 +99,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.9rem;
   color: var(--admin-dark);
   font-weight: 500;
@@ -105,7 +110,7 @@
   border: 2px solid var(--admin-border);
   border-radius: 10px;
   font-size: 1rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   transition: all 0.3s ease;
   background: var(--admin-cream);
 }
@@ -144,7 +149,7 @@
 }
 
 .admin-login-button:hover {
-  background: #7A6548;
+  background: #5e3a47;
   transform: translateY(-2px);
   box-shadow: 0 10px 30px rgba(139, 115, 85, 0.3);
 }
@@ -197,7 +202,7 @@
   border: 2px solid var(--admin-maroon);
   color: var(--admin-maroon);
   border-radius: 8px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -275,11 +280,11 @@
 }
 
 .stat-label {
-  font-family: 'Playfair Display', serif;
-  font-size: 0.9rem;
-  color: #777;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  color: var(--admin-text-medium);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 /* Toolbar */
@@ -309,7 +314,7 @@
   border: none;
   outline: none;
   font-size: 1rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   width: 100%;
   background: transparent;
 }
@@ -328,7 +333,7 @@
   border: 2px solid var(--admin-border);
   background: white;
   border-radius: 10px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -355,7 +360,7 @@
   border: 2px solid var(--admin-border);
   background: white;
   border-radius: 10px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -372,7 +377,7 @@
 }
 
 .action-btn.primary:hover {
-  background: #7A6548;
+  background: #5e3a47;
 }
 
 /* Tabela */
@@ -395,18 +400,18 @@
   background: var(--admin-cream);
   padding: 16px 20px;
   text-align: left;
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
-  color: var(--admin-dark);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  color: var(--admin-text-medium);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   font-weight: 600;
 }
 
 .admin-table td {
   padding: 16px 20px;
   border-bottom: 1px solid var(--admin-border);
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .admin-table tr:last-child td {
@@ -414,7 +419,7 @@
 }
 
 .admin-table tr:hover {
-  background: rgba(139, 115, 85, 0.03);
+  background: rgba(196, 137, 154, 0.04);
 }
 
 .name-cell {
@@ -464,7 +469,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: rgba(139, 115, 85, 0.1);
+  background: rgba(229, 212, 164, 0.3);
   border-radius: 20px;
   font-size: 0.85rem;
   color: var(--admin-maroon);
@@ -475,7 +480,7 @@
   background: var(--admin-cream);
   border: none;
   border-radius: 8px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -512,7 +517,7 @@
   padding: 60px 20px;
   background: white;
   border-radius: 16px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.1rem;
   color: #777;
 }
@@ -551,7 +556,7 @@
 }
 
 .card-header h3 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.15rem;
   font-weight: 600;
   margin: 0;
@@ -607,7 +612,7 @@
   color: var(--admin-error);
   transition: all 0.3s ease;
   font-size: 0.8rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .card-delete-btn:hover {
@@ -683,7 +688,7 @@
 
 .modal-section span,
 .modal-section p {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1rem;
   color: var(--admin-dark);
 }
@@ -805,7 +810,7 @@
   padding: 14px 20px;
   border: none;
   background: transparent;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.95rem;
   color: var(--admin-dark);
   cursor: pointer;
@@ -908,7 +913,7 @@
   gap: 10px;
   padding: 16px 20px;
   border-radius: 10px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1rem;
   margin-bottom: 20px;
   animation: fadeIn 0.3s ease;
@@ -965,7 +970,7 @@
   background: var(--admin-cream);
   border: 1px solid var(--admin-border);
   border-radius: 8px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.85rem;
   color: var(--admin-maroon);
   cursor: pointer;
@@ -1040,7 +1045,7 @@
   gap: 6px;
   padding: 10px 16px;
   border-radius: 8px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1111,7 +1116,7 @@
 }
 
 .delete-modal p {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1rem;
   color: #666;
   margin: 0 0 8px 0;
@@ -1139,7 +1144,7 @@
 .delete-modal-confirm {
   padding: 12px 24px;
   border-radius: 10px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.3s ease;
