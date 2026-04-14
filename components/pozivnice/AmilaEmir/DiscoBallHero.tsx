@@ -177,18 +177,6 @@ export default function DiscoBallHero({ audioRef, onMusicStarted, onDone }: Prop
       if (spinningRef.current) return
       dragRef.current = { active: true, lastX: e.clientX, velocity: 0 }
       wrap.setPointerCapture(e.pointerId)
-      // Unlock audio on first touch (required for iOS/mobile)
-      if (audioRef?.current) {
-        const audio = audioRef.current
-        console.log('[audio] onDown — paused:', audio.paused, 'muted:', audio.muted, 'volume:', audio.volume, 'readyState:', audio.readyState)
-        if (audio.paused) {
-          audio.play().then(() => {
-            console.log('[audio] unlock play() success, pausing')
-            audio.pause()
-            audio.currentTime = 0
-          }).catch(e => console.warn('[audio] unlock play() failed:', e))
-        }
-      }
     }
 
     const onMove = (e: PointerEvent) => {
@@ -206,12 +194,26 @@ export default function DiscoBallHero({ audioRef, onMusicStarted, onDone }: Prop
       if (Math.abs(dragRef.current.velocity) > 4) triggerSpin(dragRef.current.velocity)
     }
 
+    // Unlock audio on first touchstart (guaranteed user gesture for mobile)
+    const unlockAudio = () => {
+      if (audioRef?.current && audioRef.current.paused) {
+        audioRef.current.play().then(() => {
+          console.log('[audio] touchstart unlock success')
+          audioRef.current!.pause()
+          audioRef.current!.currentTime = 0
+        }).catch(e => console.warn('[audio] touchstart unlock failed:', e))
+      }
+      wrap.removeEventListener('touchstart', unlockAudio)
+    }
+    wrap.addEventListener('touchstart', unlockAudio, { passive: true })
+
     wrap.addEventListener('pointerdown', onDown)
     wrap.addEventListener('pointermove', onMove)
     wrap.addEventListener('pointerup', onUp)
     wrap.addEventListener('pointercancel', onUp)
 
     return () => {
+      wrap.removeEventListener('touchstart', unlockAudio)
       wrap.removeEventListener('pointerdown', onDown)
       wrap.removeEventListener('pointermove', onMove)
       wrap.removeEventListener('pointerup', onUp)
