@@ -74,14 +74,36 @@ export default function AmilaEmir({ invitation }: Props) {
   const [musicStarted, setMusicStarted] = useState(false)
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioUnlockedRef = useRef(false)
 
   useEffect(() => {
     const audio = new Audio('/pozivnice/AmilaEmir/song.mp3')
     audio.loop = true
-    audio.preload = 'auto'
-    audio.load()
+    audio.preload = 'none'
     audioRef.current = audio
     return () => { audio.pause(); audio.src = '' }
+  }, [])
+
+  // Unlock audio on first document interaction (required for iOS/Chrome autoplay policy)
+  useEffect(() => {
+    const unlock = () => {
+      if (audioUnlockedRef.current || !audioRef.current) return
+      const audio = audioRef.current
+      audio.load()
+      audio.play().then(() => {
+        audio.pause()
+        audio.currentTime = 0
+        audioUnlockedRef.current = true
+        console.log('[audio] unlocked via document interaction')
+      }).catch(e => console.warn('[audio] unlock failed:', e))
+    }
+
+    document.addEventListener('touchstart', unlock, { passive: true, once: true })
+    document.addEventListener('mousedown', unlock, { once: true })
+    return () => {
+      document.removeEventListener('touchstart', unlock)
+      document.removeEventListener('mousedown', unlock)
+    }
   }, [])
 
   useEffect(() => {
