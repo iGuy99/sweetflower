@@ -32,6 +32,8 @@ export default function AdminLogin({ slug }: Props) {
       body: JSON.stringify({ slug, username: credentials.username, password: credentials.password }),
     })
 
+    const debugInfo = `status: ${res.status} | ok: ${res.ok} | cookies: ${document.cookie || 'NONE'}`
+    alert(debugInfo)
     if (res.ok) {
       router.push(`/pozivnice/${slug}/admin`)
       router.refresh()
