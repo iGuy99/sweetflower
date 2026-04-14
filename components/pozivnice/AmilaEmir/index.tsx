@@ -85,8 +85,23 @@ export default function AmilaEmir({ invitation }: Props) {
   }, [])
 
   useEffect(() => {
-    document.body.style.overflow = showDiscoHero ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    if (showDiscoHero) {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+    } else {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
   }, [showDiscoHero])
 
   useEffect(() => {
