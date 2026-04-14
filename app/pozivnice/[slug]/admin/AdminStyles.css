@@ -1,4 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Alex+Brush&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&family=Great+Vibes&family=Allura&family=Alex+Brush&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Cinzel:wght@400;500;600&display=swap');
+
+@font-face {
+  font-family: 'Losta Masta';
+  src: url('/fonts/LostaMasta-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Losta Masta';
+  src: url('/fonts/LostaMasta-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Losta Masta';
+  src: url('/fonts/LostaMasta-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Bouncy';
+  src: url('/fonts/Bouncy-Black-PERSONAL_USE_ONLY.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Bouncy';
+  src: url('/fonts/Bouncy-PERSONAL_USE_ONLY.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ===================================
    ADMIN PANEL — usklađeno sa pozivnicom
@@ -13,8 +49,8 @@
   --white: #ffffff;
   --text-dark: #4a3535;
   --text-medium: #8a7070;
-  --success: #27ae60;
-  --error: #c0565a;
+  --success: #5a9e7a;
+  --error: var(--rose-dark);
   --border: rgba(196, 137, 154, 0.25);
   --card-shadow: 0 4px 24px rgba(196, 137, 154, 0.15);
 }
@@ -76,19 +112,22 @@
 }
 
 .admin-login-title {
-  font-family: 'Cinzel', serif;
-  font-size: 1.4rem;
-  color: var(--rose-dark);
-  margin-bottom: 8px;
-  letter-spacing: 0.12em;
-  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.7rem;
+  color: var(--text-medium);
+  margin-bottom: 6px;
+  letter-spacing: 0.18em;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .admin-login-subtitle {
-  font-family: 'Alex Brush', cursive;
-  font-size: 2.2rem;
+  font-family: 'Losta Masta', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 400;
   color: var(--text-dark);
-  line-height: 1.2;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
 }
 
 .admin-login-form {
@@ -135,14 +174,14 @@
 }
 
 .admin-error-message {
-  background: rgba(192, 86, 90, 0.08);
-  color: var(--error);
+  background: rgba(196, 137, 154, 0.12);
+  color: var(--rose-dark);
   padding: 12px 16px;
   border-radius: 10px;
   font-size: 0.875rem;
   font-family: 'Montserrat', sans-serif;
   text-align: center;
-  border: 1px solid rgba(192, 86, 90, 0.2);
+  border: 1px solid rgba(196, 137, 154, 0.3);
 }
 
 .admin-login-button {
@@ -201,20 +240,23 @@
 .admin-header-content { flex: 1; }
 
 .admin-title {
-  font-family: 'Cinzel', serif;
-  font-size: 1.3rem;
-  color: var(--rose-dark);
-  letter-spacing: 0.12em;
-  font-weight: 500;
-  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.7rem;
+  color: var(--text-medium);
+  letter-spacing: 0.18em;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin: 0 0 4px 0;
 }
 
 .admin-subtitle {
-  font-family: 'Alex Brush', cursive;
-  font-size: 1.6rem;
+  font-family: 'Losta Masta', sans-serif;
+  font-size: 2rem;
+  font-weight: 400;
   color: var(--text-dark);
-  margin: 2px 0 0 0;
-  line-height: 1.2;
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
 }
 
 .admin-logout-btn {
@@ -286,8 +328,8 @@
 }
 
 .stat-card.not-attending .stat-icon {
-  background: rgba(192, 86, 90, 0.1);
-  color: var(--error);
+  background: rgba(196, 137, 154, 0.15);
+  color: var(--rose-dark);
 }
 
 .stat-card.guests .stat-icon {
@@ -461,8 +503,8 @@
 }
 
 .status-badge.not-attending {
-  background: rgba(192, 86, 90, 0.1);
-  color: var(--error);
+  background: rgba(196, 137, 154, 0.15);
+  color: var(--rose-dark);
 }
 
 .status-badge.large { padding: 8px 20px; font-size: 0.95rem; }
@@ -497,18 +539,18 @@
 
 .delete-btn {
   padding: 7px 10px;
-  background: rgba(192, 86, 90, 0.08);
-  border: 1px solid rgba(192, 86, 90, 0.2);
+  background: rgba(122, 78, 94, 0.07);
+  border: 1px solid rgba(122, 78, 94, 0.2);
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: var(--error);
+  color: var(--rose-dark);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.delete-btn:hover { background: var(--error); color: var(--white); border-color: var(--error); }
+.delete-btn:hover { background: var(--rose-dark); color: var(--white); border-color: var(--rose-dark); }
 
 /* Loading & Empty states */
 .loading-state,
@@ -597,20 +639,20 @@
 
 .card-delete-btn {
   background: transparent;
-  border: 1px solid rgba(192, 86, 90, 0.25);
+  border: 1px solid rgba(122, 78, 94, 0.25);
   border-radius: 20px;
   padding: 6px 12px;
   display: flex;
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  color: var(--error);
+  color: var(--rose-dark);
   transition: all 0.3s ease;
 }
 
 .card-delete-btn:hover {
-  background: var(--error);
-  border-color: var(--error);
+  background: var(--rose-dark);
+  border-color: var(--rose-dark);
   color: var(--white);
 }
 
@@ -655,10 +697,12 @@
 .modal-close:hover { color: var(--text-dark); }
 
 .modal-content h2 {
-  font-family: 'Alex Brush', cursive;
-  font-size: 2.2rem;
+  font-family: 'Losta Masta', sans-serif;
+  font-size: 2rem;
+  font-weight: 400;
   color: var(--text-dark);
   margin: 0 0 24px 0;
+  letter-spacing: 0.02em;
 }
 
 .modal-section { margin-bottom: 18px; }
@@ -688,8 +732,8 @@
 .dietary-tag {
   display: inline-block;
   padding: 5px 14px;
-  background: rgba(192, 86, 90, 0.08);
-  color: var(--error);
+  background: rgba(196, 137, 154, 0.12);
+  color: var(--rose-dark);
   border-radius: 20px;
   font-size: 0.85rem;
   font-family: 'Montserrat', sans-serif;
@@ -889,7 +933,7 @@
 .save-btn:hover { background: #219a52; }
 
 .cancel-btn { background: transparent; border: 1px solid var(--border); color: var(--text-dark); }
-.cancel-btn:hover { border-color: var(--error); color: var(--error); }
+.cancel-btn:hover { border-color: var(--rose); color: var(--rose-dark); }
 
 /* Delete Modal */
 .delete-modal {
@@ -906,21 +950,21 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: rgba(192, 86, 90, 0.08);
+  background: rgba(196, 137, 154, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 18px;
-  color: var(--error);
+  color: var(--rose-dark);
 }
 
 .delete-modal h3 {
-  font-family: 'Cinzel', serif;
-  font-size: 1.3rem;
-  font-weight: 500;
+  font-family: 'Losta Masta', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 400;
   color: var(--text-dark);
   margin: 0 0 12px 0;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
 }
 
 .delete-modal p {
@@ -935,7 +979,7 @@
 
 .delete-warning {
   font-size: 0.8rem !important;
-  color: var(--error) !important;
+  color: var(--rose-dark) !important;
   margin-top: 10px !important;
 }
 
@@ -970,12 +1014,12 @@
 .delete-modal-cancel:hover { border-color: var(--rose); color: var(--rose-dark); }
 
 .delete-modal-confirm {
-  background: var(--error);
-  border: 1.5px solid var(--error);
+  background: var(--rose-dark);
+  border: 1.5px solid var(--rose-dark);
   color: var(--white);
 }
 
-.delete-modal-confirm:hover { background: #a84548; border-color: #a84548; }
+.delete-modal-confirm:hover { background: #5c3547; border-color: #5c3547; }
 
 /* RSVP submit message */
 .submit-message {
@@ -997,7 +1041,7 @@
 }
 
 .submit-message.error {
-  background: rgba(192, 86, 90, 0.08);
-  color: var(--error);
-  border: 1px solid rgba(192, 86, 90, 0.2);
+  background: rgba(196, 137, 154, 0.12);
+  color: var(--rose-dark);
+  border: 1px solid rgba(196, 137, 154, 0.3);
 }

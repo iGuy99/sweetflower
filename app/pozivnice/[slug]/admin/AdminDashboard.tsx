@@ -151,7 +151,7 @@ export default function AdminDashboard({ slug, rsvps: initialRsvps, stats: initi
     })
   }
 
-  const coupleName = slug.replace(/([A-Z])/g, ' $1').trim()
+  const coupleName = slug.replace(/([a-z])([A-Z])/, '$1 & $2')
 
   const displayStats = {
     total: Number(stats.total_responses) || 0,
@@ -165,8 +165,8 @@ export default function AdminDashboard({ slug, rsvps: initialRsvps, stats: initi
       {/* Header */}
       <header className="admin-header">
         <div className="admin-header-content">
-          <h1 className="admin-title">Prijave Gostiju</h1>
-          <p className="admin-subtitle">{coupleName}</p>
+          <p className="admin-title">Prijave Gostiju</p>
+          <h1 className="admin-subtitle">{coupleName}</h1>
         </div>
         <button className="admin-logout-btn desktop-only" onClick={handleLogout}>
           <LogOut size={18} />

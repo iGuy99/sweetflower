@@ -49,8 +49,8 @@ export default function AdminLogin({ slug }: Props) {
       </a>
       <div className="admin-login-container" data-aos="fade-up">
         <div className="admin-login-header">
-          <h1 className="admin-login-title">Admin Panel</h1>
-          <p className="admin-login-subtitle">{slug.replace(/([A-Z])/g, ' $1').trim()}</p>
+          <p className="admin-login-title">Admin Panel</p>
+          <h1 className="admin-login-subtitle">{slug.replace(/([a-z])([A-Z])/, '$1 & $2')}</h1>
         </div>
 
         <form className="admin-login-form" onSubmit={handleSubmit}>
