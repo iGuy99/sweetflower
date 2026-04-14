@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { Lock, User, LogIn, ArrowLeft } from 'lucide-react'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
@@ -12,7 +11,6 @@ interface Props {
 }
 
 export default function AdminLogin({ slug }: Props) {
-  const router = useRouter()
   const [credentials, setCredentials] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -33,8 +31,7 @@ export default function AdminLogin({ slug }: Props) {
     })
 
     if (res.ok) {
-      router.push(`/pozivnice/${slug}/admin`)
-      router.refresh()
+      window.location.href = `/pozivnice/${slug}/admin`
     } else {
       const data = await res.json()
       setError(data.error || 'Pogrešno korisničko ime ili lozinka')
