@@ -175,7 +175,7 @@ export default function DiscoBallHero({ audioRef, onMusicStarted, onDone }: Prop
 
     const onDown = (e: PointerEvent) => {
       if (spinningRef.current) return
-      dragRef.current = { active: true, startX: e.clientX, lastX: e.clientX, velocity: 0 }
+      dragRef.current = { active: true, startX: e.clientX, lastX: e.clientX }
       wrap.setPointerCapture(e.pointerId)
     }
 
