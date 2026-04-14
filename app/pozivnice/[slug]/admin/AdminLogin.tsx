@@ -49,7 +49,7 @@ export default function AdminLogin({ slug }: Props) {
       </a>
       <div className="admin-login-container" data-aos="fade-up">
         <div className="admin-login-header">
-          <p className="admin-login-title">Admin Panel</p>
+          <p className="admin-login-title">Lista Gostiju</p>
           <h1 className="admin-login-subtitle">{slug.replace(/([a-z])([A-Z])/, '$1 & $2')}</h1>
         </div>
 

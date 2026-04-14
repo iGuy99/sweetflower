@@ -40,6 +40,16 @@
    ADMIN PANEL — usklađeno sa pozivnicom
    =================================== */
 
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background-color: #F9E7C4;
+  background-image: url('/pozivnice/AmilaEmir/grain_cream.png');
+  background-size: 300px 300px;
+  background-repeat: repeat;
+}
+
 :root {
   --rose: #c4899a;
   --rose-dark: #7a4e5e;

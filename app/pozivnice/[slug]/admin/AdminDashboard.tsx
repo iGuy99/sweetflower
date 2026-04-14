@@ -165,7 +165,7 @@ export default function AdminDashboard({ slug, rsvps: initialRsvps, stats: initi
       {/* Header */}
       <header className="admin-header">
         <div className="admin-header-content">
-          <p className="admin-title">Prijave Gostiju</p>
+          <p className="admin-title">Lista Gostiju</p>
           <h1 className="admin-subtitle">{coupleName}</h1>
         </div>
         <button className="admin-logout-btn desktop-only" onClick={handleLogout}>
