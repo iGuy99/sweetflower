@@ -132,7 +132,7 @@ export default function DiscoBallHero({ audioRef, onMusicStarted, onDone }: Prop
   const wrapRef = useRef<HTMLDivElement>(null)
   const spinningRef = useRef(false)
   const rotationRef = useRef(0)
-  const dragRef = useRef({ active: false, lastX: 0, velocity: 0 })
+  const dragRef = useRef({ active: false, startX: 0, lastX: 0 })
   const [lightsOn, setLightsOn] = useState(false)
   const [outro, setOutro] = useState(false)
   const [ballLeaving, setBallLeaving] = useState(false)
@@ -175,23 +175,23 @@ export default function DiscoBallHero({ audioRef, onMusicStarted, onDone }: Prop
 
     const onDown = (e: PointerEvent) => {
       if (spinningRef.current) return
-      dragRef.current = { active: true, lastX: e.clientX, velocity: 0 }
+      dragRef.current = { active: true, startX: e.clientX, lastX: e.clientX, velocity: 0 }
       wrap.setPointerCapture(e.pointerId)
     }
 
     const onMove = (e: PointerEvent) => {
       if (!dragRef.current.active || spinningRef.current) return
       const delta = e.clientX - dragRef.current.lastX
-      dragRef.current.velocity = delta
       dragRef.current.lastX = e.clientX
       rotationRef.current -= delta * 0.8
       ball.style.transform = `rotateX(90deg) rotateZ(${rotationRef.current}deg)`
     }
 
-    const onUp = () => {
+    const onUp = (e: PointerEvent) => {
       if (!dragRef.current.active || spinningRef.current) return
       dragRef.current.active = false
-      if (Math.abs(dragRef.current.velocity) > 4) triggerSpin(dragRef.current.velocity)
+      const displacement = e.clientX - dragRef.current.startX
+      if (Math.abs(displacement) > 8) triggerSpin(displacement)
     }
 
     wrap.addEventListener('pointerdown', onDown)
