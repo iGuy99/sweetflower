@@ -31,7 +31,7 @@ export default function AdminLogin({ slug }: Props) {
     })
 
     if (res.ok) {
-      window.location.reload()
+      window.location.href = `/pozivnice/${slug}/admin`
     } else {
       const data = await res.json()
       setError(data.error || 'Pogrešno korisničko ime ili lozinka')
