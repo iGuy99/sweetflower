@@ -79,7 +79,7 @@ export default function AmilaEmir({ invitation }: Props) {
   useEffect(() => {
     const audio = new Audio('/pozivnice/AmilaEmir/song.mp3')
     audio.loop = true
-    audio.preload = 'none'
+    audio.preload = 'auto'
     audioRef.current = audio
     return () => { audio.pause(); audio.src = '' }
   }, [])
@@ -89,7 +89,6 @@ export default function AmilaEmir({ invitation }: Props) {
     const unlock = () => {
       if (audioUnlockedRef.current || !audioRef.current) return
       const audio = audioRef.current
-      audio.load()
       audio.play().then(() => {
         audio.pause()
         audio.currentTime = 0
@@ -170,7 +169,7 @@ export default function AmilaEmir({ invitation }: Props) {
 
   const toggleMusic = () => {
     if (!audioRef.current) return
-    if (isPlaying) { audioRef.current.pause() } else { audioRef.current.play() }
+    audioRef.current.muted = isPlaying
     setIsPlaying(!isPlaying)
   }
 
