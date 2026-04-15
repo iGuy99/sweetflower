@@ -1,0 +1,32 @@
+.sf-dekoracija {
+  background: var(--peach-100);
+}
+
+.sf-dekoracija__intro {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sf-dekoracija__paragraph {
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  line-height: 1.7;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.sf-dekoracija__paragraph:first-of-type {
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+@media (min-width: 900px) {
+  .sf-dekoracija__intro {
+    gap: 26px;
+  }
+}

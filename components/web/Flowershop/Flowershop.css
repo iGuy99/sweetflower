@@ -1,0 +1,4 @@
+.sf-flowershop {
+  background: linear-gradient(180deg, var(--peach-100) 0%, var(--peach-200) 100%);
+  border-top: 1px solid var(--line);
+}
