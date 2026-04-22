@@ -1,47 +1,45 @@
+import Link from 'next/link'
 import { heroConfig } from './config'
 import './Hero.css'
 
 export default function Hero() {
   return (
     <section className="sf-hero" id="top">
-      {heroConfig.videoSrc ? (
-        <video
-          className="sf-hero__video"
-          src={heroConfig.videoSrc}
-          poster={heroConfig.posterSrc || undefined}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
+      {heroConfig.imageSrc && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          className="sf-hero__bg-img"
+          src={heroConfig.imageSrc}
+          alt=""
           aria-hidden
         />
-      ) : (
-        <div className="sf-hero__bg" aria-hidden />
       )}
       <div className="sf-hero__scrim" aria-hidden />
 
-      <div className="sf-hero__inner">
-        <h1 className="sf-hero__logo sf-hero__fade sf-hero__fade--1">
-          <span>{heroConfig.logoLine1}</span>
-          <span className="sf-hero__logo-divider" aria-hidden />
-          <span>{heroConfig.logoLine2}</span>
-        </h1>
-
-        <div className="sf-hero__center">
-          <p className="sf-hero__headline sf-hero__fade sf-hero__fade--2">
-            {heroConfig.headline.split('\n').map((line, i) => (
+      <div className="sf-hero__inner sf-container">
+        {/* Left column: eyebrow + headline */}
+        <div className="sf-hero__left">
+          <p className="sf-hero__eyebrow sf-hero__fade sf-hero__fade--1">
+            {heroConfig.eyebrow}
+          </p>
+          <h1 className="sf-hero__headline sf-hero__fade sf-hero__fade--2">
+            {heroConfig.headline.map((line, i) => (
               <span key={i}>{line}</span>
             ))}
-          </p>
-          <p className="sf-hero__subtitle sf-hero__fade sf-hero__fade--3">
-            {heroConfig.subtitle}
-          </p>
+          </h1>
         </div>
 
-        <div className="sf-hero__scroll sf-hero__fade sf-hero__fade--4" aria-hidden>
-          <span>{heroConfig.scrollHint}</span>
-          <span className="sf-hero__scroll-line" />
+        {/* Right column: lede + ctas */}
+        <div className="sf-hero__right sf-hero__fade sf-hero__fade--3">
+          <p className="sf-hero__lede">{heroConfig.lede}</p>
+          <div className="sf-hero__ctas">
+            <Link href={heroConfig.ctaSecondary.href} className="sf-hero__cta sf-hero__cta--secondary">
+              {heroConfig.ctaSecondary.label}
+            </Link>
+            <Link href={heroConfig.ctaPrimary.href} className="sf-hero__cta sf-hero__cta--primary">
+              {heroConfig.ctaPrimary.label}
+            </Link>
+          </div>
         </div>
       </div>
     </section>

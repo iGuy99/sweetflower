@@ -11,42 +11,18 @@ export default function Navbar() {
   const isHome = pathname === '/'
 
   const [scrolled, setScrolled] = useState(false)
-  const [pastCards, setPastCards] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 120)
+    const onScroll = () => setScrolled(window.scrollY > 60)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
-    if (!isHome) {
-      setPastCards(false)
-      return
-    }
-    const cards = document.querySelector('.sf-nav-cards')
-    if (!cards) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const past =
-          !entry.isIntersecting && entry.boundingClientRect.top < 0
-        setPastCards(past)
-      },
-      { threshold: 0 },
-    )
-
-    observer.observe(cards)
-    return () => observer.disconnect()
-  }, [isHome, pathname])
-
-  useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
-    return () => {
-      document.body.style.overflow = ''
-    }
+    return () => { document.body.style.overflow = '' }
   }, [menuOpen])
 
   useEffect(() => {
@@ -55,8 +31,7 @@ export default function Navbar() {
 
   const navClass = [
     'sf-nav',
-    scrolled || !isHome ? 'sf-nav--scrolled' : '',
-    pastCards || !isHome ? 'sf-nav--past-cards' : '',
+    scrolled ? 'sf-nav--scrolled' : '',
     !isHome ? 'sf-nav--solid' : '',
   ]
     .filter(Boolean)
@@ -67,6 +42,9 @@ export default function Navbar() {
       <header className={navClass}>
         <div className="sf-nav__inner sf-container">
           <Link href={HOME_HREF} className="sf-nav__logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M12 21C12 21 3 14.5 3 8.5a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-9 12.5-9 12.5z" />
+            </svg>
             {LOGO_TEXT}
           </Link>
 
@@ -79,9 +57,7 @@ export default function Navbar() {
                 <Link href={link.href}>
                   {link.label}
                   {link.children && (
-                    <span className="sf-nav__chev" aria-hidden>
-                      ▾
-                    </span>
+                    <span className="sf-nav__chev" aria-hidden>▾</span>
                   )}
                 </Link>
                 {link.children && (
@@ -97,6 +73,10 @@ export default function Navbar() {
             ))}
           </nav>
 
+          <Link href="/kontakt" className="sf-nav__cta">
+            Zakažite termin
+          </Link>
+
           <button
             className={`sf-nav__burger ${menuOpen ? 'is-open' : ''}`}
             onClick={() => setMenuOpen((v) => !v)}
@@ -110,25 +90,56 @@ export default function Navbar() {
         </div>
       </header>
 
+      {/* Backdrop */}
       <div
-        className={`sf-mobile-menu ${menuOpen ? 'is-open' : ''}`}
+        className={`sf-drawer-backdrop ${menuOpen ? 'is-open' : ''}`}
+        onClick={() => setMenuOpen(false)}
+        aria-hidden
+      />
+
+      {/* Side drawer */}
+      <nav
+        className={`sf-drawer ${menuOpen ? 'is-open' : ''}`}
+        aria-label="Mobilna navigacija"
         aria-hidden={!menuOpen}
       >
-        <div className="sf-mobile-menu__brand">{LOGO_TEXT}</div>
-        <div className="sf-mobile-menu__grid">
-          {SECTION_CARDS.map((card) => (
+        <div className="sf-drawer__header">
+          <Link href={HOME_HREF} className="sf-drawer__brand" onClick={() => setMenuOpen(false)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M12 21C12 21 3 14.5 3 8.5a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-9 12.5-9 12.5z" />
+            </svg>
+            {LOGO_TEXT}
+          </Link>
+          <button
+            className="sf-drawer__close"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Zatvori meni"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="sf-drawer__links">
+          {SECTION_CARDS.map((card, i) => (
             <Link
               key={card.id}
               href={card.href}
-              className="sf-mobile-card"
+              className="sf-drawer__link"
+              style={{ animationDelay: menuOpen ? `${i * 60 + 120}ms` : '0ms' }}
               onClick={() => setMenuOpen(false)}
             >
-              <span className="sf-mobile-card__label">{card.label}</span>
-              <span className="sf-mobile-card__desc">{card.description}</span>
+              <span className="sf-drawer__link-label">{card.label}</span>
+              <span className="sf-drawer__link-arrow" aria-hidden>→</span>
             </Link>
           ))}
         </div>
-      </div>
+
+        <div className="sf-drawer__footer">
+          <Link href="/kontakt" className="sf-drawer__cta" onClick={() => setMenuOpen(false)}>
+            Zakažite termin
+          </Link>
+        </div>
+      </nav>
     </>
   )
 }
