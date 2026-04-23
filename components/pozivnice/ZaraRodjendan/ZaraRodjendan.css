@@ -1,0 +1,913 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@300;400;500;600&family=Great+Vibes&family=Cinzel:wght@400;500;600&display=swap');
+
+:root {
+  --zara-pink:       #FCE1E4;
+  --zara-pink-deep:  #F4C2C8;
+  --zara-pink-mid:   #f8d0d5;
+  --zara-gold:       #C5A059;
+  --zara-gold-light: #D4B87A;
+  --zara-rose:       #A64D79;
+  --zara-rose-dark:  #7a3358;
+  --zara-eucalyptus: #8DA399;
+  --zara-cream:      #FFF8F0;
+  --zara-white:      #FFFFFF;
+  --zara-text:       #6b3a50;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.zara-site {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--zara-text);
+  background: var(--zara-pink);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ================================================
+   CAKE INTRO
+   ================================================ */
+.cake-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #3a0d22;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+/* Full dark overlay — soft radial spotlight at center so cake glows */
+.cake-intro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 48%, rgba(255, 200, 215, 0.07) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cake-intro.exiting {
+  opacity: 0;
+  visibility: hidden;
+}
+
+
+.cake-stage {
+  position: relative;
+  width: 200px;
+  overflow: visible;
+  transform: scale(1.28);
+  transform-origin: center center;
+  z-index: 1;
+}
+
+/* ---- Candles — identical CSS to the original, now on .velas directly ---- */
+.velas {
+  background: #ffffff;
+  border-radius: 10px;
+  position: absolute;
+  top: 228px;
+  left: 50%;
+  margin-left: -2.4px;
+  margin-top: -8.33333333px;
+  width: 5px;
+  height: 35px;
+  transform: translateY(-700px);
+  backface-visibility: hidden;
+  animation: candleIn 500ms ease-out forwards;
+  cursor: pointer;
+  z-index: 10;
+  touch-action: manipulation;
+}
+
+.velas::after,
+.velas::before {
+  background: rgba(255, 0, 0, 0.4);
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2.22222222px;
+}
+.velas::after  { top: 25%; left: 0; }
+.velas::before { top: 45%; left: 0; }
+
+/* Tap target extension (invisible) */
+.velas > span.tap-zone {
+  position: absolute;
+  top: -22px;
+  left: -16px;
+  right: -16px;
+  bottom: -6px;
+}
+
+.velas.extinguished .fuego {
+  animation-play-state: paused !important;
+  opacity: 0;
+  transition: opacity 0.45s ease calc(var(--i, 0) * 0.09s);
+}
+
+@keyframes candleIn {
+  to { transform: translateY(0); }
+}
+
+/* ---- Flames ---- */
+.fuego {
+  border-radius: 100%;
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  margin-left: -2.6px;
+  width: 6.66666667px;
+  height: 18px;
+  transition: opacity 0.45s ease;
+}
+
+.fuego:nth-child(1) { animation: fuego 2s   6.5s infinite; }
+.fuego:nth-child(2) { animation: fuego 1.5s 6.5s infinite; }
+.fuego:nth-child(3) { animation: fuego 1s   6.5s infinite; }
+.fuego:nth-child(4) { animation: fuego 0.5s 6.5s infinite; }
+.fuego:nth-child(5) { animation: fuego 0.2s 6.5s infinite; }
+
+@keyframes fuego {
+  0%, 100% {
+    background: rgba(254, 248, 97, 0.85);
+    box-shadow: 0 0 40px 10px rgba(248, 233, 209, 0.3);
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    background: rgba(255, 50, 0, 0.15);
+    box-shadow: 0 0 40px 20px rgba(248, 233, 209, 0.2);
+    transform: translateY(-20px) scale(0);
+  }
+}
+
+/* ---- Cake text ---- */
+.cake-intro-title {
+  font-family: 'Great Vibes', cursive;
+  font-size: 3.6rem;
+  background: linear-gradient(135deg, var(--zara-gold) 0%, var(--zara-gold-light) 50%, var(--zara-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  margin-top: 3rem;
+  opacity: 0;
+  animation: fadeInTitle 1s ease 6.2s forwards;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 2px 6px rgba(197, 160, 89, 0.3));
+}
+
+@keyframes fadeInTitle {
+  to { opacity: 1; }
+}
+
+.cake-intro-hint {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: #f9c8d6;
+  margin-top: 1rem;
+  opacity: 0;
+  animation: fadeInHint 1s ease 7.0s forwards;
+  text-align: center;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes fadeInHint {
+  to { opacity: 1; }
+}
+
+
+/* ================================================
+   HERO SECTION
+   ================================================ */
+.zara-hero {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  min-height: 100svh;
+  background: url('/pozivnice/ZaraRodjendan/hero-bg.png') center center / cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 1.5rem 3rem;
+  position: relative;
+  opacity: 0;
+  transition: opacity 1s ease;
+  isolation: isolate;
+}
+
+@media (min-width: 600px) {
+  .zara-hero {
+    aspect-ratio: unset;
+    min-height: 100svh;
+  }
+}
+
+.zara-hero.ready {
+  opacity: 1;
+}
+
+/* Hero children — hidden until .ready fires */
+.zara-hero .hero-pretitle,
+.zara-hero .hero-name,
+.zara-hero .hero-subtitle,
+.zara-hero .hero-separator,
+.zara-hero .hero-tagline {
+  opacity: 0;
+}
+/* scroll hint opacity managed separately (absolute positioned) */
+
+@keyframes heroFadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes heroZoomIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.zara-hero.ready .hero-pretitle    { animation: heroFadeDown 0.7s ease 0.2s  forwards; }
+.zara-hero.ready .hero-name        { animation: heroZoomIn  0.8s ease 0.45s forwards; }
+.zara-hero.ready .hero-subtitle    { animation: heroFadeUp  0.7s ease 0.7s  forwards; }
+.zara-hero.ready .hero-separator   { animation: heroFadeUp  0.6s ease 0.9s  forwards; }
+.zara-hero.ready .hero-tagline     { animation: heroFadeUp  0.7s ease 1.05s forwards; }
+.zara-hero.ready .hero-scroll-hint { animation: heroFadeUp  0.6s ease 1.3s  forwards; }
+
+/* Scroll hint */
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 4.5rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  opacity: 0;
+  color: var(--zara-gold);
+  pointer-events: none;
+}
+
+.hero-scroll-hint svg:nth-child(1) {
+  animation: scrollBounce 1.6s ease-in-out 1.5s infinite;
+  opacity: 0.5;
+}
+.hero-scroll-hint svg:nth-child(2) {
+  animation: scrollBounce 1.6s ease-in-out 1.7s infinite;
+  margin-top: -18px;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0);   opacity: 0.4; }
+  50%       { transform: translateY(6px); opacity: 1;   }
+}
+
+.hero-pretitle {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: clamp(0.8rem, 3vw, 1rem);
+  letter-spacing: 0.35em;
+  padding-left: 0.35em;
+  color: var(--zara-rose);
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.hero-name {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(7.5rem, 30vw, 11rem);
+  line-height: 1.15;
+  padding: 0 0.15em 0.1em;
+  background: linear-gradient(135deg, var(--zara-gold) 0%, var(--zara-gold-light) 50%, var(--zara-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 10px rgba(197, 160, 89, 0.45));
+  margin-bottom: 0.2rem;
+}
+
+.hero-subtitle {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.3rem, 5vw, 1.9rem);
+  letter-spacing: 0.18em;
+  padding-left: 0.18em;
+  color: var(--zara-gold);
+  text-transform: uppercase;
+  margin-bottom: 1.4rem;
+}
+
+/* Separator */
+.hero-separator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(220px, 55vw);
+  margin: 0 auto 1.4rem;
+}
+
+.hero-separator-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(197, 160, 89, 0.6);
+}
+
+.hero-separator-heart {
+  color: var(--zara-gold);
+  flex-shrink: 0;
+}
+
+/* Maca centerpiece */
+.hero-maca {
+  width: min(380px, 82vw);
+  margin: 0 auto 2rem;
+  display: block;
+  animation: floatMaca 4s ease-in-out infinite;
+  filter: drop-shadow(0 8px 24px rgba(164, 77, 121, 0.18));
+}
+
+@keyframes floatMaca {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* Info row */
+.hero-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.hero-info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.hero-info-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--zara-rose);
+}
+
+.hero-info-value {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--zara-text);
+  line-height: 1.1;
+}
+
+.hero-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.hero-info-icon {
+  color: var(--zara-pink-deep);
+}
+
+.hero-divider {
+  width: 1px;
+  height: 48px;
+  background: rgba(197, 160, 89, 0.4);
+}
+
+.hero-venue {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--zara-text);
+  margin-bottom: 0.4rem;
+}
+
+.hero-venue-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--zara-rose);
+  margin-bottom: 0.25rem;
+}
+
+.hero-venue-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.hero-tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 4vw, 1.4rem);
+  color: var(--zara-rose);
+  padding: 0 1.5rem;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* ================================================
+   SECTIONS WRAPPER + COLOUR BANDS
+   ================================================ */
+.zara-sections {
+  position: relative;
+}
+
+.zara-bg-cream  { background: #F5F5ED; }
+.zara-bg-rose   { background: #E6B1B1; }
+.zara-bg-gold   { background: #E6D877; }
+.zara-bg-coral  { background: #ED9595; }
+
+/* ---- Text overrides per background ---- */
+
+/* Gold background — gold title would be invisible, use dark brown */
+.zara-bg-gold .zara-section-title    { color: #4a3008; }
+.zara-bg-gold .zara-section-subtitle { color: #6a4a10; }
+.zara-bg-gold .zara-venue-name       { color: #3a2a08; }
+.zara-bg-gold .zara-venue-time       { color: #6a4a10; }
+.zara-bg-gold .zara-map-btn          {
+  background: linear-gradient(135deg, #4a3008 0%, #6a4a10 100%);
+  box-shadow: 0 4px 14px rgba(74, 48, 8, 0.35);
+}
+
+/* Rose background — rose-on-rose has low contrast */
+.zara-bg-rose .zara-section-subtitle { color: #4a1a2a; }
+.zara-bg-rose .zara-program-desc     { color: #4a1a2a; }
+
+/* Coral background — everything darker */
+.zara-bg-coral .zara-section-title   { color: #3a1010; }
+.zara-bg-coral .zara-section-subtitle{ color: #4a1818; }
+.zara-bg-coral .zara-closing-title   {
+  background: linear-gradient(135deg, #3a1010 0%, #5a2020 50%, #3a1010 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.zara-bg-coral .zara-closing-text    { color: #3a1010; }
+.zara-bg-coral .zara-closing-heart   { color: #3a1010; }
+.zara-bg-coral .zara-closing-flowers { filter: brightness(0.6); }
+
+/* ---- Maca showcase (between countdown and venue) ---- */
+.zara-maca-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 0 1.5rem 2rem;
+}
+
+.zara-maca-showcase {
+  width: min(440px, 95vw);
+  display: block;
+  animation: floatMaca 4s ease-in-out infinite;
+  filter: drop-shadow(0 12px 28px rgba(100, 40, 60, 0.22));
+}
+
+/* ================================================
+   SHARED SECTION STYLES
+   ================================================ */
+.zara-section {
+  padding: 5rem 1.5rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.zara-section-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 500;
+  font-size: clamp(1.3rem, 4vw, 1.7rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--zara-gold);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.zara-section-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--zara-rose);
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* ================================================
+   COUNTDOWN
+   ================================================ */
+.zara-event-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2rem;
+  background: var(--zara-white);
+  border-radius: 14px;
+  border: 1px solid rgba(197, 160, 89, 0.2);
+  box-shadow: 0 2px 16px rgba(164, 77, 121, 0.08);
+  overflow: hidden;
+  max-width: 380px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.zara-event-info-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 1rem 0.75rem;
+}
+
+.zara-event-info-icon {
+  color: var(--zara-pink-deep);
+}
+
+.zara-event-info-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--zara-rose);
+}
+
+.zara-event-info-value {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--zara-text);
+}
+
+.zara-event-info-divider {
+  width: 1px;
+  height: 48px;
+  background: rgba(197, 160, 89, 0.3);
+  flex-shrink: 0;
+}
+
+.zara-countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.zara-countdown-item {
+  background: var(--zara-white);
+  border-radius: 12px;
+  padding: 1.2rem 0.5rem;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(164, 77, 121, 0.1);
+  border: 1px solid rgba(197, 160, 89, 0.2);
+}
+
+.zara-countdown-number {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: clamp(1.8rem, 6vw, 2.4rem);
+  color: var(--zara-gold);
+  line-height: 1;
+  display: block;
+}
+
+.zara-countdown-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--zara-rose);
+  margin-top: 0.3rem;
+  display: block;
+}
+
+/* ================================================
+   VENUE
+   ================================================ */
+.zara-venue-card {
+  background: var(--zara-white);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 4px 30px rgba(164, 77, 121, 0.1);
+  border: 1px solid rgba(197, 160, 89, 0.2);
+  text-align: center;
+}
+
+.zara-venue-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--zara-pink);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  color: var(--zara-rose);
+}
+
+.zara-venue-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--zara-text);
+  margin-bottom: 0.25rem;
+}
+
+.zara-venue-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  color: var(--zara-rose);
+  margin-bottom: 1rem;
+}
+
+.zara-map-container {
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 1.5rem 0;
+  height: 220px;
+}
+
+.zara-map-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.zara-map-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--zara-pink);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: var(--zara-rose);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.zara-map-placeholder:hover {
+  background: var(--zara-pink-deep);
+}
+
+.zara-map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--zara-gold) 0%, var(--zara-gold-light) 100%);
+  color: var(--zara-white);
+  text-decoration: none;
+  padding: 0.75rem 1.75rem;
+  border-radius: 999px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 14px rgba(197, 160, 89, 0.35);
+}
+
+.zara-map-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.45);
+}
+
+/* ================================================
+   PROGRAM
+   ================================================ */
+.zara-program-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.zara-program-item {
+  display: grid;
+  grid-template-columns: 64px 48px 1fr;
+  align-items: center;
+  gap: 1rem;
+  background: var(--zara-white);
+  border-radius: 14px;
+  padding: 1.2rem 1.5rem;
+  box-shadow: 0 2px 16px rgba(164, 77, 121, 0.08);
+  border: 1px solid rgba(197, 160, 89, 0.15);
+}
+
+.zara-program-time {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--zara-gold);
+  text-align: center;
+}
+
+.zara-program-icon {
+  width: 42px;
+  height: 42px;
+  background: var(--zara-pink);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--zara-rose);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.zara-program-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--zara-text);
+  margin-bottom: 0.1rem;
+}
+
+.zara-program-desc {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  color: var(--zara-rose);
+  font-weight: 400;
+}
+
+/* ================================================
+   CLOSING
+   ================================================ */
+.zara-closing {
+  padding: 5rem 1.5rem 6rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.zara-closing::before,
+.zara-closing::after {
+  content: '';
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(197, 160, 89, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.zara-closing::before { top: 2rem; left: -2rem; }
+.zara-closing::after  { bottom: 2rem; right: -2rem; }
+
+.zara-closing-title {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(2.5rem, 10vw, 4rem);
+  background: linear-gradient(135deg, var(--zara-gold) 0%, var(--zara-gold-light) 50%, var(--zara-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1.25rem;
+}
+
+.zara-closing-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 3.5vw, 1.3rem);
+  color: var(--zara-rose);
+  max-width: 380px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.7;
+}
+
+.zara-closing-heart {
+  color: var(--zara-rose);
+}
+
+.zara-closing-flowers {
+  font-size: 1.6rem;
+  letter-spacing: 0.5rem;
+  opacity: 0.7;
+  margin-top: 1.5rem;
+}
+
+/* ================================================
+   MUSIC TOGGLE
+   ================================================ */
+.zara-music-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 500;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--zara-gold) 0%, var(--zara-gold-light) 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--zara-white);
+  box-shadow: 0 4px 14px rgba(197, 160, 89, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.zara-music-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ================================================
+   FOOTER
+   ================================================ */
+.zara-footer {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  background: #D6A936;
+  border-top: none;
+}
+
+.zara-footer-name {
+  font-family: 'Great Vibes', cursive;
+  font-size: 2rem;
+  color: #fff8e8;
+  margin-bottom: 0.25rem;
+}
+
+.zara-footer-date {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: #4a3008;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.zara-footer-credit {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: #4a3008;
+  opacity: 0.7;
+}
+
+/* ================================================
+   RESPONSIVE
+   ================================================ */
+@media (max-width: 480px) {
+  .hero-info {
+    gap: 1.5rem;
+  }
+
+  .zara-countdown-grid {
+    gap: 0.6rem;
+  }
+
+  .zara-program-item {
+    grid-template-columns: 52px 40px 1fr;
+    gap: 0.6rem;
+    padding: 1rem 1rem;
+  }
+
+  .zara-program-time {
+    font-size: 0.85rem;
+  }
+
+  .vela {
+    touch-action: manipulation;
+  }
+}
