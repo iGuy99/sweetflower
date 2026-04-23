@@ -4,19 +4,19 @@ import { Users, Sparkles, Cake } from 'lucide-react'
 
 const SCHEDULE = [
   {
-    time: '17:00',
+    time: '18:00',
     icon: <Users size={20} />,
     title: 'Dolazak',
     desc: 'Dobrodošli mali gosti!',
   },
   {
-    time: '17:30',
+    time: '18:30',
     icon: <Sparkles size={20} />,
     title: 'Igra na napuhancu i terenu',
     desc: 'Zabava i igre za sve!',
   },
   {
-    time: '18:00',
+    time: '19:00',
     icon: <Cake size={20} />,
     title: 'Torta',
     desc: 'Pušemo svjećice zajedno!',

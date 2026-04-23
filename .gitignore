@@ -42,3 +42,6 @@ next-env.d.ts
 
 # wordpress reference template (local only)
 wordpress template/
+
+# private deployment notes (contains credentials)
+instructions.md

@@ -19,7 +19,7 @@ export default function Venue() {
 
         <div className="zara-venue-time">
           <Clock size={15} />
-          <span>Početak slavlja: 17h</span>
+          <span>Početak slavlja: 18h</span>
         </div>
 
         <div className="zara-map-container">

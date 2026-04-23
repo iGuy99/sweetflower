@@ -61,7 +61,7 @@ export default function ZaraRodjendan({ invitation }: Props) {
 
   // Countdown to 29.04.2026 17:00
   useEffect(() => {
-    const birthdayDate = new Date(2026, 3, 29, 17, 0, 0)
+    const birthdayDate = new Date(2026, 3, 29, 18, 0, 0)
     const update = () => {
       const diff = birthdayDate.getTime() - Date.now()
       if (diff > 0) {

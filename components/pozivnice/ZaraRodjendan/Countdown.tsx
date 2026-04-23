@@ -31,7 +31,7 @@ export default function Countdown({ countdown }: Props) {
         <div className="zara-event-info-item">
           <Clock size={18} className="zara-event-info-icon" />
           <span className="zara-event-info-label">Početak</span>
-          <span className="zara-event-info-value">17:00h</span>
+          <span className="zara-event-info-value">18:00h</span>
         </div>
       </div>
 
