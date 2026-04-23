@@ -76,7 +76,7 @@
 }
 
 body {
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: 'Montserrat', sans-serif;
   color: var(--text-dark);
   background: var(--cream);
   line-height: 1.6;
@@ -215,7 +215,7 @@ body {
 
 .video-loading p {
   color: rgba(255, 255, 255, 0.9);
-  font-family: var(--font-playfair), serif;
+  font-family: 'Playfair Display', serif;
   font-size: 1rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -319,7 +319,7 @@ body {
 }
 
 .hero-tagline {
-  font-family: var(--font-cinzel), serif;
+  font-family: 'Cinzel', serif;
   font-size: 0.85rem;
   letter-spacing: 0.5em;
   margin-bottom: 1.5rem;
@@ -370,7 +370,7 @@ body {
 }
 
 .hero-ampersand {
-  font-family: var(--font-great-vibes), cursive;
+  font-family: 'Great Vibes', cursive;
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   color: var(--gold);
   display: block;
@@ -385,7 +385,7 @@ body {
 }
 
 .hero-date {
-  font-family: var(--font-playfair), serif;
+  font-family: 'Playfair Display', serif;
   font-size: 1.4rem;
   font-style: italic;
   font-weight: 400;
@@ -468,7 +468,7 @@ body {
 }
 
 .section-subtitle {
-  font-family: var(--font-playfair), serif;
+  font-family: 'Playfair Display', serif;
   font-size: 1rem;
   font-weight: 400;
   font-style: italic;
@@ -513,7 +513,7 @@ body {
 }
 
 .countdown-number {
-  font-family: var(--font-playfair), serif;
+  font-family: 'Playfair Display', serif;
   font-size: 3.5rem;
   font-weight: 400;
   line-height: 1;
@@ -577,7 +577,7 @@ body {
 }
 
 .venue-subname {
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.15em;
@@ -712,7 +712,7 @@ body {
 .program-icon svg { color: var(--rose-dark); width: 22px; height: 22px; }
 
 .program-title {
-  font-family: var(--font-playfair), serif;
+  font-family: 'Playfair Display', serif;
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--white);
@@ -761,7 +761,7 @@ body {
 .dresscode-icon svg { color: var(--rose); }
 
 .dresscode-type {
-  font-family: var(--font-playfair), serif;
+  font-family: 'Playfair Display', serif;
   font-size: 1.6rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
@@ -844,7 +844,7 @@ body {
 }
 
 .faq-card-question {
-  font-family: var(--font-cinzel), serif;
+  font-family: 'Cinzel', serif;
   font-size: 1.05rem;
   color: var(--text-dark);
   margin-bottom: 0.75rem;
@@ -853,7 +853,7 @@ body {
 }
 
 .faq-card-answer {
-  font-family: var(--font-playfair), serif;
+  font-family: 'Playfair Display', serif;
   font-size: 0.95rem;
   color: var(--text-medium);
   line-height: 1.7;
@@ -909,7 +909,7 @@ body {
   border: 1px solid var(--cream-dark);
   border-radius: 6px;
   font-size: 0.9rem;
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: 'Montserrat', sans-serif;
   transition: border-color 0.3s ease;
   background: var(--white);
   color: var(--text-dark);
@@ -968,7 +968,7 @@ body {
   border: 1px solid var(--cream-dark);
   border-radius: 6px;
   font-size: 0.9rem;
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: 'Montserrat', sans-serif;
   resize: vertical;
   min-height: 100px;
   transition: border-color 0.3s ease;
@@ -1007,7 +1007,7 @@ body {
   border: none;
   border-radius: 6px;
   font-size: 1rem;
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: 'Montserrat', sans-serif;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1048,7 +1048,7 @@ body {
 }
 
 .footer-date {
-  font-family: var(--font-playfair), serif;
+  font-family: 'Playfair Display', serif;
   font-style: italic;
   font-size: 1rem;
   opacity: 0.9;
@@ -1062,7 +1062,7 @@ body {
   display: inline-block;
   margin-top: 2rem;
   padding: 10px 20px;
-  font-family: var(--font-playfair), serif;
+  font-family: 'Playfair Display', serif;
   font-size: 0.85rem;
   color: var(--rose-light);
   text-decoration: none;
