@@ -150,7 +150,7 @@
 
 /* ---- Cake text ---- */
 .cake-intro-title {
-  font-family: 'Great Vibes', cursive;
+  font-family: 'Allura', cursive;
   font-size: 3.6rem;
   background: linear-gradient(135deg, var(--zara-gold) 0%, var(--zara-gold-light) 50%, var(--zara-gold) 100%);
   -webkit-background-clip: text;
@@ -290,7 +290,7 @@
 }
 
 .hero-name {
-  font-family: 'Great Vibes', cursive;
+  font-family: 'Allura', cursive;
   font-size: clamp(7.5rem, 30vw, 11rem);
   line-height: 1.15;
   padding: 0 0.15em 0.1em;
@@ -499,10 +499,11 @@
 }
 
 .zara-section-title {
-  font-family: 'Cinzel', serif;
-  font-weight: 500;
-  font-size: clamp(1.3rem, 4vw, 1.7rem);
-  letter-spacing: 0.1em;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.15rem, 3.8vw, 1.55rem);
+  letter-spacing: 0.12em;
+  padding-left: 0.12em;
   text-transform: uppercase;
   color: var(--zara-gold);
   text-align: center;
@@ -793,7 +794,7 @@
 .zara-closing::after  { bottom: 2rem; right: -2rem; }
 
 .zara-closing-title {
-  font-family: 'Great Vibes', cursive;
+  font-family: 'Allura', cursive;
   font-size: clamp(2.5rem, 10vw, 4rem);
   background: linear-gradient(135deg, var(--zara-gold) 0%, var(--zara-gold-light) 50%, var(--zara-gold) 100%);
   -webkit-background-clip: text;
@@ -860,7 +861,7 @@
 }
 
 .zara-footer-name {
-  font-family: 'Great Vibes', cursive;
+  font-family: 'Allura', cursive;
   font-size: 2rem;
   color: #fff8e8;
   margin-bottom: 0.25rem;
