@@ -19,7 +19,7 @@
 }
 
 .zara-site {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   color: var(--zara-text);
   background: var(--zara-pink);
   line-height: 1.6;
@@ -150,7 +150,7 @@
 
 /* ---- Cake text ---- */
 .cake-intro-title {
-  font-family: 'Allura', cursive;
+  font-family: var(--font-allura), cursive;
   font-size: 3.6rem;
   background: linear-gradient(135deg, var(--zara-gold) 0%, var(--zara-gold-light) 50%, var(--zara-gold) 100%);
   -webkit-background-clip: text;
@@ -170,7 +170,7 @@
 }
 
 .cake-intro-hint {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-style: italic;
   font-size: 1.2rem;
   color: #f9c8d6;
@@ -279,7 +279,7 @@
 }
 
 .hero-pretitle {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-weight: 600;
   font-size: clamp(0.8rem, 3vw, 1rem);
   letter-spacing: 0.35em;
@@ -290,7 +290,7 @@
 }
 
 .hero-name {
-  font-family: 'Allura', cursive;
+  font-family: var(--font-allura), cursive;
   font-size: clamp(7.5rem, 30vw, 11rem);
   line-height: 1.15;
   padding: 0 0.15em 0.1em;
@@ -303,7 +303,7 @@
 }
 
 .hero-subtitle {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-weight: 700;
   font-size: clamp(1.3rem, 5vw, 1.9rem);
   letter-spacing: 0.18em;
@@ -365,7 +365,7 @@
 }
 
 .hero-info-label {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.25em;
@@ -374,7 +374,7 @@
 }
 
 .hero-info-value {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-cinzel), serif;
   font-size: 1.6rem;
   font-weight: 500;
   color: var(--zara-text);
@@ -401,7 +401,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--zara-text);
@@ -425,7 +425,7 @@
 }
 
 .hero-tagline {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-style: italic;
   font-size: clamp(1.1rem, 4vw, 1.4rem);
   color: var(--zara-rose);
@@ -499,7 +499,7 @@
 }
 
 .zara-section-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-weight: 700;
   font-size: clamp(1.15rem, 3.8vw, 1.55rem);
   letter-spacing: 0.12em;
@@ -511,7 +511,7 @@
 }
 
 .zara-section-subtitle {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-style: italic;
   font-size: 1.1rem;
   color: var(--zara-rose);
@@ -552,7 +552,7 @@
 }
 
 .zara-event-info-label {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -561,7 +561,7 @@
 }
 
 .zara-event-info-value {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-cinzel), serif;
   font-size: 1rem;
   font-weight: 500;
   color: var(--zara-text);
@@ -592,7 +592,7 @@
 }
 
 .zara-countdown-number {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-cinzel), serif;
   font-weight: 600;
   font-size: clamp(1.8rem, 6vw, 2.4rem);
   color: var(--zara-gold);
@@ -601,7 +601,7 @@
 }
 
 .zara-countdown-label {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -636,7 +636,7 @@
 }
 
 .zara-venue-name {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-cinzel), serif;
   font-size: 1.25rem;
   font-weight: 500;
   color: var(--zara-text);
@@ -648,7 +648,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 0.9rem;
   color: var(--zara-rose);
   margin-bottom: 1rem;
@@ -680,7 +680,7 @@
   justify-content: center;
   gap: 0.6rem;
   color: var(--zara-rose);
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
   transition: background 0.2s ease;
@@ -699,7 +699,7 @@
   text-decoration: none;
   padding: 0.75rem 1.75rem;
   border-radius: 999px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -736,7 +736,7 @@
 }
 
 .zara-program-time {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-cinzel), serif;
   font-size: 1rem;
   font-weight: 500;
   color: var(--zara-gold);
@@ -757,7 +757,7 @@
 }
 
 .zara-program-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-weight: 600;
   font-size: 0.95rem;
   color: var(--zara-text);
@@ -765,7 +765,7 @@
 }
 
 .zara-program-desc {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 0.8rem;
   color: var(--zara-rose);
   font-weight: 400;
@@ -794,7 +794,7 @@
 .zara-closing::after  { bottom: 2rem; right: -2rem; }
 
 .zara-closing-title {
-  font-family: 'Allura', cursive;
+  font-family: var(--font-allura), cursive;
   font-size: clamp(2.5rem, 10vw, 4rem);
   background: linear-gradient(135deg, var(--zara-gold) 0%, var(--zara-gold-light) 50%, var(--zara-gold) 100%);
   -webkit-background-clip: text;
@@ -804,7 +804,7 @@
 }
 
 .zara-closing-text {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-style: italic;
   font-size: clamp(1.05rem, 3.5vw, 1.3rem);
   color: var(--zara-rose);
@@ -861,14 +861,14 @@
 }
 
 .zara-footer-name {
-  font-family: 'Allura', cursive;
+  font-family: var(--font-allura), cursive;
   font-size: 2rem;
   color: #fff8e8;
   margin-bottom: 0.25rem;
 }
 
 .zara-footer-date {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-cinzel), serif;
   font-size: 0.8rem;
   letter-spacing: 0.2em;
   color: #4a3008;
@@ -877,7 +877,7 @@
 }
 
 .zara-footer-credit {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-style: italic;
   font-size: 0.85rem;
   color: #4a3008;
