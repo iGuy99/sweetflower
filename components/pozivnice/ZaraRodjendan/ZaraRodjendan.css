@@ -499,10 +499,10 @@
 }
 
 .zara-section-title {
-  font-family: 'Cinzel', serif;
-  font-weight: 500;
-  font-size: clamp(1.3rem, 4vw, 1.7rem);
-  letter-spacing: 0.1em;
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-size: clamp(1.4rem, 4.2vw, 1.8rem);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--zara-gold);
   text-align: center;
@@ -756,16 +756,18 @@
 }
 
 .zara-program-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Cormorant Garamond', serif;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1.2rem;
   color: var(--zara-text);
-  margin-bottom: 0.1rem;
+  margin-bottom: 0.15rem;
+  letter-spacing: 0.01em;
 }
 
 .zara-program-desc {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.8rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
   color: var(--zara-rose);
   font-weight: 400;
 }
