@@ -10,7 +10,6 @@ const mockInvitation: Invitation = {
   wedding_venue: 'Dedina Luka',
   component_name: 'AmarRodjendan',
   admin_username: 'amar',
-  admin_password: '',
   show_phone: false,
   show_guest_count: true,
   show_allergies: false,
