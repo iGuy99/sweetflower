@@ -14,13 +14,24 @@ const SCHEDULE = [
     title: 'Ručak',
     icon: (
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M2 10h10M4 10V7a3 3 0 016 0v3" stroke="#3a2e22" strokeWidth="1.3" strokeLinecap="round" />
-        <path d="M5.5 7h3" stroke="#3a2e22" strokeWidth="1.3" strokeLinecap="round" />
+        <path d="M2 3v8M5 3v8M3.5 7h0M8 3c0 0 4 1 4 4s-4 4-4 4V3z" stroke="#3a2e22" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
   {
     time: '16:00',
+    title: 'Torta',
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 2v2" stroke="#3a2e22" strokeWidth="1.3" strokeLinecap="round" />
+        <rect x="2" y="6" width="10" height="6" rx="1" stroke="#3a2e22" strokeWidth="1.3" />
+        <path d="M2 9h10" stroke="#3a2e22" strokeWidth="1.3" strokeLinecap="round" />
+        <path d="M5 6V5a2 2 0 014 0v1" stroke="#3a2e22" strokeWidth="1.3" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    time: '16:30',
     title: 'Slikanje',
     icon: (
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -30,14 +41,11 @@ const SCHEDULE = [
     ),
   },
   {
-    time: '16:30',
+    time: '17:00',
     title: 'Zabava i igra',
     icon: (
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path
-          d="M7 2l1.2 2.5 2.8.4-2 2 .5 2.8L7 8.5l-2.5 1.2.5-2.8-2-2 2.8-.4L7 2z"
-          stroke="#3a2e22" strokeWidth="1.2"
-        />
+        <path d="M7 2l1.2 2.5 2.8.4-2 2 .5 2.8L7 8.5l-2.5 1.2.5-2.8-2-2 2.8-.4L7 2z" stroke="#3a2e22" strokeWidth="1.2" />
       </svg>
     ),
   },
