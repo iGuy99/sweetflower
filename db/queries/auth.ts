@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs'
 import { queryOne } from '../connection'
 
 export async function verifyInvitationAdmin(slug: string, username: string, password: string) {
@@ -8,7 +9,9 @@ export async function verifyInvitationAdmin(slug: string, username: string, pass
 
   if (!invitation) return null
   if (invitation.admin_username !== username) return null
-  if (invitation.admin_password !== password) return null
+
+  const passwordMatch = await bcrypt.compare(password, invitation.admin_password)
+  if (!passwordMatch) return null
 
   return { id: invitation.id }
 }

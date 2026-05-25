@@ -67,7 +67,7 @@ export default function CakeCarousel() {
 
   return (
     <section className="carousel-section">
-      <p className="carousel-intro" data-aos="fade-down">U 17h jedemo moju drugu tortu!</p>
+      <p className="carousel-intro" data-aos="fade-down">U 16h jedemo moju drugu tortu!</p>
 
       <div
         className="carousel-frame"

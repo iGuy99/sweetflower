@@ -14,7 +14,10 @@ const SCHEDULE = [
     title: 'Ručak',
     icon: (
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M2 3v8M5 3v8M3.5 7h0M8 3c0 0 4 1 4 4s-4 4-4 4V3z" stroke="#3a2e22" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M3 2v4c0 1.1.9 2 2 2v4" stroke="#3a2e22" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M2 2v2.5M4 2v2.5" stroke="#3a2e22" strokeWidth="1.3" strokeLinecap="round" />
+        <path d="M10 2v10" stroke="#3a2e22" strokeWidth="1.3" strokeLinecap="round" />
+        <path d="M8 2c0 0 3 .8 3 3s-3 3-3 3" stroke="#3a2e22" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
