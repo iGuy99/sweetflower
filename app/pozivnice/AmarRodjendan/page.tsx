@@ -15,7 +15,6 @@ const mockInvitation: Invitation = {
   show_allergies: false,
   show_song_request: false,
   show_message: false,
-  custom_fields: null,
   is_active: true,
   created_at: new Date().toISOString(),
 }
