@@ -624,7 +624,7 @@
 .amar-page .outro-section {
   position: relative;
   min-height: 100svh;
-  overflow: hidden;
+  padding-bottom: 40svh;
   background: var(--bg);
 }
 
