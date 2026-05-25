@@ -2,12 +2,14 @@ import { getInvitationBySlug } from '@/db/queries/invitations'
 import { notFound } from 'next/navigation'
 import AmilaEmir from '@/components/pozivnice/AmilaEmir'
 import ZaraRodjendan from '@/components/pozivnice/ZaraRodjendan'
+import AmarRodjendan from '@/components/pozivnice/AmarRodjendan'
 import type { Invitation } from '@/db/queries/invitations'
 import type { ComponentType } from 'react'
 
 const COMPONENTS: Record<string, ComponentType<{ invitation: Invitation }>> = {
   AmilaEmir,
   ZaraRodjendan,
+  AmarRodjendan,
 }
 
 export default async function PozivnicaPage({ params }: { params: Promise<{ slug: string }> }) {

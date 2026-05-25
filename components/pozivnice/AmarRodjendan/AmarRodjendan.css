@@ -1,0 +1,873 @@
+@import '@fontsource/cormorant-garamond/300.css';
+@import '@fontsource/cormorant-garamond/300-italic.css';
+@import '@fontsource/cormorant-garamond/400.css';
+@import '@fontsource/cormorant-garamond/400-italic.css';
+@import '@fontsource/cormorant-garamond/500.css';
+@import '@fontsource/cormorant-garamond/500-italic.css';
+@import '@fontsource/manrope/300.css';
+@import '@fontsource/manrope/400.css';
+@import '@fontsource/manrope/500.css';
+@import '@fontsource/manrope/600.css';
+
+.amar-page {
+  --bg:         #c7b293;
+  --ink:        #3a2e22;
+  --ink-soft:   #5a4836;
+  --green-bg:   #cdd6c6;
+  --green-card: #dde5d8;
+  --green-ink:  #2b3a28;
+  --green-muted:#4a5e46;
+
+  font-family: 'Manrope', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: var(--ink);
+  background: var(--bg);
+  min-height: 100%;
+}
+
+/* ── HERO ───────────────────────────────────────────────── */
+.amar-page .hero {
+  position: relative;
+  min-height: 100svh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.amar-page .hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 72%;
+  transform: scale(1.04);
+  transform-origin: center 72%;
+}
+
+.amar-page .hero-fade-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 22%;
+  background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.amar-page .heading {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 2;
+  text-align: center;
+  padding: clamp(28px, 6svh, 52px) 20px 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 85%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 60%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+.amar-page .eyebrow {
+  font-weight: 400;
+  font-size: clamp(9px, 2.4vw, 11px);
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0;
+}
+
+.amar-page .name {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(110px, 30vw, 140px);
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-top: 0;
+  margin-bottom: clamp(10px, 1.6svh, 16px);
+}
+
+.amar-page .subtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(10px, 3vw, 20px);
+  font-weight: 500;
+  font-size: clamp(9px, 2.4vw, 12px);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.amar-page .subtitle .rule {
+  display: block;
+  width: clamp(18px, 5vw, 44px);
+  height: 1px;
+  background: var(--ink);
+  opacity: 0.5;
+}
+
+.amar-page .subtitle .num {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: inherit;
+  letter-spacing: inherit;
+  line-height: 1;
+}
+
+.amar-page .hint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+  white-space: nowrap;
+  animation: hintBob 2s ease-in-out infinite;
+}
+
+@keyframes hintBob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(5px); }
+}
+
+/* ── SHARED SECTION TYPOGRAPHY ──────────────────────────── */
+.amar-page .sec-eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.46em;
+  text-transform: uppercase;
+  color: var(--green-muted);
+  margin-bottom: 10px;
+}
+
+.amar-page .sec-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(34px, 9vw, 44px);
+  line-height: 1.05;
+  color: var(--green-ink);
+  margin-bottom: 4px;
+}
+
+.amar-page .sec-sub {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--green-muted);
+  margin-bottom: 32px;
+}
+
+/* ── COUNTDOWN SECTION ──────────────────────────────────── */
+.amar-page .countdown-section {
+  background: var(--green-bg);
+  padding: 52px 24px 56px;
+  text-align: center;
+  position: relative;
+}
+
+.amar-page .event-card {
+  display: flex;
+  align-items: stretch;
+  background: var(--green-card);
+  border-radius: 16px;
+  overflow: hidden;
+  max-width: 320px;
+  margin: 0 auto 28px;
+  border: 1px solid rgba(43,64,40,0.1);
+}
+
+.amar-page .event-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 18px 12px;
+}
+
+.amar-page .event-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(43,64,40,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.amar-page .event-icon svg { display: block; }
+
+.amar-page .event-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--green-muted);
+}
+
+.amar-page .event-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--green-ink);
+  line-height: 1.2;
+}
+
+.amar-page .event-divider {
+  width: 1px;
+  background: rgba(43,64,40,0.12);
+  margin: 14px 0;
+}
+
+.amar-page .cd-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.amar-page .cd-item {
+  background: var(--green-card);
+  border-radius: 14px;
+  padding: 16px 6px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(43,64,40,0.08);
+}
+
+.amar-page .cd-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: clamp(28px, 8vw, 36px);
+  line-height: 1;
+  color: var(--green-ink);
+}
+
+.amar-page .cd-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--green-muted);
+}
+
+/* ── VENUE SECTION ──────────────────────────────────────── */
+.amar-page .venue-section {
+  background: var(--green-bg);
+  padding: 52px 24px 32px;
+  text-align: center;
+}
+
+.amar-page .venue-card {
+  background: rgba(255,255,255,0.45);
+  border-radius: 20px;
+  overflow: hidden;
+  max-width: 360px;
+  margin: 0 auto;
+  border: 1px solid rgba(58,46,34,0.12);
+}
+
+.amar-page .venue-card-body {
+  padding: 24px 20px 20px;
+}
+
+.amar-page .venue-icon-wrap {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(58,46,34,0.09);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+
+.amar-page .venue-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--ink);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.amar-page .venue-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 20px;
+}
+
+.amar-page .venue-map {
+  width: 100%;
+  height: 200px;
+  border: none;
+  display: block;
+}
+
+.amar-page .venue-contact {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(58,46,34,0.1);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.amar-page .venue-contact strong {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.amar-page .venue-maps-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 20px 20px;
+  padding: 13px 20px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(58,46,34,0.25);
+  background: none;
+  color: var(--ink);
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.amar-page .venue-maps-btn:hover {
+  background: rgba(58,46,34,0.06);
+}
+
+/* ── PROGRAM SECTION ────────────────────────────────────── */
+.amar-page .program-section {
+  background: var(--bg);
+  padding: 52px 20px 60px;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+  min-height: 520px;
+}
+
+.amar-page .program-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right center;
+  transform: scale(var(--prog-scale, 1.85)) translateX(var(--prog-x, 16%)) translateY(var(--prog-y, -1%));
+  transform-origin: center center;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.amar-page .program-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 28%;
+  background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.amar-page .program-inner {
+  position: relative;
+  z-index: 2;
+}
+
+.amar-page .program-header {
+  padding: 0 24px 24px;
+}
+
+.amar-page .program-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 220px;
+  margin: 0 auto 0 0;
+  padding: 0;
+  text-align: left;
+}
+
+.amar-page .prog-item {
+  display: grid;
+  grid-template-columns: 48px 36px 1fr;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.88);
+  border-radius: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(58,46,34,0.07);
+}
+
+.amar-page .prog-icon {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(58,46,34,0.09);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.amar-page .prog-time {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--ink);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.amar-page .prog-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--ink);
+  margin-bottom: 1px;
+}
+
+.amar-page .prog-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+/* ── CAROUSEL SECTION ───────────────────────────────────── */
+.amar-page .carousel-section {
+  background: var(--green-bg);
+  padding: 44px 20px 0;
+  text-align: center;
+}
+
+.amar-page .carousel-intro {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(22px, 6vw, 28px);
+  color: var(--green-ink);
+  margin-bottom: 20px;
+  line-height: 1.3;
+}
+
+.amar-page .carousel-frame {
+  position: relative;
+  width: min(360px, 96vw);
+  aspect-ratio: 3/4;
+  margin: 0 auto;
+  border-radius: 0;
+  overflow: hidden;
+  background: rgba(255,255,255,0.25);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.amar-page .carousel-teaser {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(4px);
+}
+
+.amar-page .teaser-icon {
+  margin-bottom: 4px;
+}
+
+.amar-page .teaser-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 24px;
+  line-height: 1.3;
+  color: var(--green-ink);
+  text-align: center;
+}
+
+.amar-page .teaser-sub {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: var(--green-muted);
+}
+
+.amar-page .carousel-slides {
+  position: absolute;
+  inset: 0;
+}
+
+.amar-page .c-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.amar-page .c-slide.active { opacity: 1; }
+
+.amar-page .carousel-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  z-index: 3;
+}
+
+.amar-page .c-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  transition: background 0.3s;
+  display: inline-block;
+}
+
+.amar-page .c-dot.active { background: #fff; }
+
+.amar-page .carousel-hint {
+  font-family: 'Manrope', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--green-muted);
+  opacity: 0.7;
+}
+
+.amar-page .carousel-caption {
+  background: var(--green-bg);
+  color: var(--green-muted);
+  font-family: 'Manrope', sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  padding: 14px 24px 40px;
+  text-align: center;
+}
+
+.amar-page .cake-replay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(205,214,198,0.85);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  z-index: 5;
+}
+
+.amar-page .replay-icon {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.amar-page .replay-text {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: var(--green-ink);
+}
+
+/* ── OUTRO SECTION ──────────────────────────────────────── */
+.amar-page .outro-section {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.amar-page .outro-img {
+  position: absolute;
+  top: 25%; left: 0; right: 0; bottom: 0;
+  width: 100%;
+  height: 75%;
+  object-fit: cover;
+  object-position: center top;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+}
+
+.amar-page .outro-img.active { opacity: 1; }
+
+.amar-page .outro-img-fade {
+  position: absolute;
+  top: 25%; left: 0; right: 0;
+  height: 25%;
+  background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.amar-page .outro-rsvp-wrap {
+  position: relative;
+  z-index: 3;
+  padding: 40px 24px 20px;
+  text-align: center;
+  background: none;
+}
+
+/* ── RSVP CARD ──────────────────────────────────────────── */
+.amar-page .rsvp-card {
+  background: rgba(255,255,255,0.92);
+  border-radius: 20px;
+  padding: 24px 20px 28px;
+  max-width: 340px;
+  margin: 0 auto;
+  border: 1px solid rgba(58,46,34,0.1);
+  text-align: center;
+}
+
+.amar-page .rsvp-counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.amar-page .rsvp-counter-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  color: var(--ink);
+  text-align: left;
+  flex: 1;
+}
+
+.amar-page .rsvp-counter-label small {
+  display: block;
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 2px;
+}
+
+.amar-page .rsvp-stepper {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.amar-page .rsvp-btn-step {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(58,46,34,0.25);
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.amar-page .rsvp-btn-step:active { background: rgba(58,46,34,0.08); }
+
+.amar-page .rsvp-count {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--ink);
+  min-width: 24px;
+  text-align: center;
+}
+
+.amar-page .rsvp-name {
+  width: 100%;
+  background: rgba(255,255,255,0.7);
+  border: 1.5px solid rgba(58,46,34,0.15);
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  color: var(--ink);
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.amar-page .rsvp-name::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.6;
+}
+
+.amar-page .rsvp-name:focus {
+  border-color: rgba(58,46,34,0.4);
+  background: rgba(255,255,255,0.9);
+}
+
+.amar-page .rsvp-divider {
+  height: 1px;
+  background: rgba(58,46,34,0.1);
+  margin: 16px 0;
+}
+
+.amar-page .rsvp-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.amar-page .rsvp-choice {
+  background: #fff;
+  color: var(--ink);
+  border: 1.5px solid rgba(58,46,34,0.22);
+  border-radius: 12px;
+  padding: 14px 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.amar-page .rsvp-choice.selected-yes {
+  background: var(--green-ink);
+  color: #fff;
+  border-color: var(--green-ink);
+}
+
+.amar-page .rsvp-choice.selected-no {
+  background: rgba(58,46,34,0.1);
+  color: var(--ink);
+  border-color: rgba(58,46,34,0.4);
+}
+
+.amar-page .rsvp-submit {
+  margin-top: 12px;
+  width: 100%;
+  background: var(--ink);
+  color: #f1e6d2;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.amar-page .rsvp-submit:disabled { opacity: 0.5; cursor: default; }
+
+.amar-page .rsvp-thanks {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 19px;
+  color: var(--ink);
+  line-height: 1.55;
+  padding: 20px 0 8px;
+}
+
+.amar-page .rsvp-error {
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  color: #c0392b;
+  margin-top: 12px;
+}
+
+/* ── CLOSING SECTION ─────────────────────────────────────── */
+.amar-page .closing-section {
+  background: var(--green-bg);
+  padding: 52px 24px 60px;
+  text-align: center;
+}
+
+.amar-page .outro-eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.46em;
+  text-transform: uppercase;
+  color: var(--green-muted);
+  margin-bottom: 10px;
+}
+
+.amar-page .outro-big {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(40px, 11vw, 56px);
+  line-height: 1.05;
+  color: var(--green-ink);
+  margin-bottom: 16px;
+}
+
+.amar-page .outro-rule {
+  width: 48px;
+  height: 1px;
+  background: var(--green-ink);
+  opacity: 0.2;
+  margin: 0 auto 14px;
+}
+
+.amar-page .outro-parents {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--green-ink);
+  margin-bottom: 4px;
+}
+
+.amar-page .outro-date {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: var(--green-muted);
+}
