@@ -11,11 +11,12 @@ import {
   ImagePlus,
   X,
   RefreshCw,
-  CircleCheckBig,
   CircleAlert,
-  LoaderCircle,
-  Play,
   Images,
+  Play,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
 } from 'lucide-react'
 import {
   uploadFile,
@@ -52,9 +53,16 @@ interface MediaItem {
   createdAt: string
 }
 
+/** Faza objedinjenog overlay-a. */
+type OverlayPhase = 'idle' | 'active' | 'success' | 'error'
+
 // --- Konstante ---
 
 const MAX_FILE_CONCURRENCY = 2
+const SUCCESS_AUTOCLOSE_MS = 2200
+const SWIPE_THRESHOLD_PX = 50
+const RING_RADIUS = 54
+const RING_CIRC = 2 * Math.PI * RING_RADIUS
 
 // --- Pomoćne ---
 
@@ -88,7 +96,11 @@ export default function GalleryClient({
   const [items, setItems] = useState<UploadItem[]>([])
   const [media, setMedia] = useState<MediaItem[]>([])
   const [mediaLoading, setMediaLoading] = useState(isPublic)
-  const [lightbox, setLightbox] = useState<MediaItem | null>(null)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+
+  // Objedinjeni overlay: faza (izvedena iz stanja uploada) + ručno zatvaranje.
+  const [overlayPhase, setOverlayPhase] = useState<OverlayPhase>('idle')
+  const [overlayDismissed, setOverlayDismissed] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const filesRef = useRef<Map<string, File>>(new Map())
@@ -100,28 +112,46 @@ export default function GalleryClient({
   const stoppedRef = useRef(false) // postavljeno na unmount — zaustavlja novi rad
 
   const formattedDate = formatEventDate(eventDate)
+
+  // Agregatni napredak trenutne serije (queued + uploading + terminalni članovi serije).
+  const activeCount = items.filter(
+    (it) => it.status === 'queued' || it.status === 'uploading'
+  ).length
+  const errorCount = items.filter((it) => it.status === 'error').length
   const doneCount = items.filter((it) => it.status === 'done').length
+  const totalCount = items.length
+  const aggregatePercent =
+    totalCount > 0
+      ? Math.round(
+          items.reduce((sum, it) => sum + it.progress, 0) / totalCount
+        )
+      : 0
+  const currentNumber = Math.min(doneCount + 1, totalCount)
+  const currentName =
+    items.find((it) => it.status === 'uploading')?.name ??
+    items.find((it) => it.status === 'queued')?.name ??
+    ''
+
+  const overlayVisible = !overlayDismissed && overlayPhase !== 'idle'
 
   // Drži najsvježije ime gosta dostupnim uploaderu bez re-kreiranja poslova.
   useEffect(() => {
     nameRef.current = uploaderName.trim()
   }, [uploaderName])
 
-  const updateItem = useCallback(
-    (id: string, patch: Partial<UploadItem>) => {
-      setItems((prev) =>
-        prev.map((it) => (it.id === id ? { ...it, ...patch } : it))
-      )
-    },
-    []
-  )
+  const updateItem = useCallback((id: string, patch: Partial<UploadItem>) => {
+    setItems((prev) =>
+      prev.map((it) => (it.id === id ? { ...it, ...patch } : it))
+    )
+  }, [])
 
   const refreshMedia = useCallback(async () => {
     if (!isPublic) return
     try {
-      const res = await fetch(`/api/galerija/${encodeURIComponent(slug)}/media`, {
-        cache: 'no-store',
-      })
+      const res = await fetch(
+        `/api/galerija/${encodeURIComponent(slug)}/media`,
+        { cache: 'no-store' }
+      )
       if (!res.ok) return
       const data = (await res.json()) as { media?: MediaItem[] }
       setMedia(Array.isArray(data.media) ? data.media : [])
@@ -153,6 +183,8 @@ export default function GalleryClient({
             updateItem(id, { progress: Math.round(fraction * 100) }),
         })
         updateItem(id, { status: 'done', progress: 100 })
+        // Uspješan fajl više ne treba u memoriji (može biti do 1GB).
+        filesRef.current.delete(id)
         void refreshMedia()
       } catch (err) {
         updateItem(id, { status: 'error', error: errorMessage(err) })
@@ -197,6 +229,28 @@ export default function GalleryClient({
     }
   }, [])
 
+  // Vodi fazu overlay-a iz agregatnog stanja. Transacija u success/error samo
+  // kad je serija bila aktivna, pa se ne "vaskrsava" nakon zatvaranja.
+  useEffect(() => {
+    if (activeCount > 0) {
+      setOverlayPhase('active')
+      return
+    }
+    setOverlayPhase((prev) => {
+      if (prev !== 'active') return prev
+      if (errorCount > 0) return 'error'
+      if (doneCount > 0) return 'success'
+      return 'idle'
+    })
+  }, [activeCount, errorCount, doneCount])
+
+  // Samozatvaranje overlay-a nakon poruke zahvalnosti.
+  useEffect(() => {
+    if (overlayPhase !== 'success' || overlayDismissed) return
+    const t = setTimeout(() => setOverlayDismissed(true), SUCCESS_AUTOCLOSE_MS)
+    return () => clearTimeout(t)
+  }, [overlayPhase, overlayDismissed])
+
   const handleFilesSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const list = event.target.files
@@ -213,7 +267,21 @@ export default function GalleryClient({
         added.push({ id, name: file.name, progress: 0, status: 'queued' })
       }
 
-      setItems((prev) => [...prev, ...added])
+      // Nova serija: odbaci terminalne (done/error) redove iz prethodne serije
+      // da agregatni napredak i brojač ostanu tačni, i oslobodi njihove fajlove.
+      setItems((prev) => {
+        const kept = prev.filter(
+          (it) => it.status === 'queued' || it.status === 'uploading'
+        )
+        const keptIds = new Set(kept.map((k) => k.id))
+        for (const it of prev) {
+          if (!keptIds.has(it.id) && !added.some((a) => a.id === it.id)) {
+            filesRef.current.delete(it.id)
+          }
+        }
+        return [...kept, ...added]
+      })
+      setOverlayDismissed(false)
       // Dozvoli ponovni odabir istih fajlova.
       event.target.value = ''
       pump()
@@ -221,33 +289,48 @@ export default function GalleryClient({
     [pump]
   )
 
-  const handleRetry = useCallback(
-    (id: string) => {
-      if (!filesRef.current.has(id)) return
-      updateItem(id, { status: 'queued', progress: 0, error: undefined })
-      queueRef.current.push(id)
+  const handleRetryAll = useCallback(() => {
+    let requeued = false
+    setItems((prev) =>
+      prev.map((it) => {
+        if (it.status !== 'error') return it
+        if (!filesRef.current.has(it.id)) return it
+        queueRef.current.push(it.id)
+        requeued = true
+        return { ...it, status: 'queued', progress: 0, error: undefined }
+      })
+    )
+    if (requeued) {
+      setOverlayDismissed(false)
       pump()
-    },
-    [pump, updateItem]
-  )
+    }
+  }, [pump])
 
-  const handleCancel = useCallback(
-    (id: string) => {
-      queueRef.current = queueRef.current.filter((qid) => qid !== id)
-      const controller = controllersRef.current.get(id)
-      if (controller) {
-        controller.abort() // runUpload catch postavlja terminalni status
-      } else {
-        // Fajl je još čekao u redu — nema uploada za prekinuti, pa ga sami označi.
-        updateItem(id, { status: 'error', error: 'Otkazano', progress: 0 })
-      }
-    },
-    [updateItem]
-  )
+  const handleCancelAll = useCallback(() => {
+    // Zatvori overlay odmah i zaustavi sve; abort catch-evi postavljaju terminalni
+    // status u pozadini, ali overlay ostaje skriven jer je ručno odbačen.
+    setOverlayDismissed(true)
+    queueRef.current = []
+    controllersRef.current.forEach((c) => c.abort())
+  }, [])
+
+  const closeOverlay = useCallback(() => setOverlayDismissed(true), [])
 
   const openPicker = useCallback(() => {
     fileInputRef.current?.click()
   }, [])
+
+  const handleNavigate = useCallback(
+    (dir: number) => {
+      setLightboxIndex((prev) => {
+        if (prev === null || media.length === 0) return prev
+        return (prev + dir + media.length) % media.length
+      })
+    },
+    [media.length]
+  )
+
+  const closeLightbox = useCallback(() => setLightboxIndex(null), [])
 
   return (
     <main className="sf-gallery">
@@ -255,18 +338,28 @@ export default function GalleryClient({
 
       <div className="sf-gallery__container">
         <header className="sf-gallery__hero">
-          <p className="sf-gallery__eyebrow">Podijelite uspomene</p>
-          <h1 className="sf-gallery__title">{title}</h1>
+          <span className="sf-gallery__eyebrow sf-gallery__fade sf-gallery__fade--1">
+            <span className="sf-gallery__eyebrow-dot" aria-hidden="true" />
+            Podijelite uspomene
+          </span>
+          <h1 className="sf-gallery__title sf-gallery__fade sf-gallery__fade--2">
+            {title}
+          </h1>
           {formattedDate && (
-            <p className="sf-gallery__date">{formattedDate}</p>
+            <span className="sf-gallery__promise sf-gallery__fade sf-gallery__fade--2">
+              — {formattedDate} —
+            </span>
           )}
-          <p className="sf-gallery__lede">
+          <p className="sf-gallery__lede sf-gallery__fade sf-gallery__fade--3">
             Pomozite mladencima da sačuvaju svaki trenutak — dodajte slike i
             video zapise koje ste snimili.
           </p>
         </header>
 
-        <section className="sf-gallery__uploader" aria-label="Dodavanje slika i videa">
+        <section
+          className="sf-gallery__uploader sf-gallery__fade sf-gallery__fade--3"
+          aria-label="Dodavanje slika i videa"
+        >
           <div className="sf-gallery__name-field">
             <label htmlFor="uploaderName" className="sf-gallery__label">
               Vaše ime (opcionalno)
@@ -299,33 +392,13 @@ export default function GalleryClient({
             <ImagePlus size={20} aria-hidden="true" />
             Dodajte vaše slike i video
           </button>
-
-          {items.length > 0 && (
-            <ul className="sf-gallery__file-list">
-              {items.map((item) => (
-                <UploadRow
-                  key={item.id}
-                  item={item}
-                  onRetry={handleRetry}
-                  onCancel={handleCancel}
-                />
-              ))}
-            </ul>
-          )}
-
-          {doneCount > 0 && (
-            <p className="sf-gallery__thanks" role="status">
-              Hvala vam! {doneCount === 1 ? 'Vaša uspomena je' : `${doneCount} uspomena je`}{' '}
-              poslano mladencima.
-            </p>
-          )}
         </section>
 
         {isPublic ? (
           <MediaGallery
             media={media}
             loading={mediaLoading}
-            onOpen={setLightbox}
+            onOpen={setLightboxIndex}
           />
         ) : (
           <section className="sf-gallery__private">
@@ -336,96 +409,197 @@ export default function GalleryClient({
         )}
       </div>
 
-      {lightbox && (
-        <Lightbox item={lightbox} onClose={() => setLightbox(null)} />
+      {overlayVisible && (
+        <UploadOverlay
+          phase={overlayPhase}
+          percent={aggregatePercent}
+          currentNumber={currentNumber}
+          totalCount={totalCount}
+          currentName={currentName}
+          errorCount={errorCount}
+          doneCount={doneCount}
+          onCancelAll={handleCancelAll}
+          onRetryAll={handleRetryAll}
+          onClose={closeOverlay}
+        />
+      )}
+
+      {lightboxIndex !== null && media[lightboxIndex] && (
+        <Lightbox
+          media={media}
+          index={lightboxIndex}
+          onClose={closeLightbox}
+          onNavigate={handleNavigate}
+        />
       )}
     </main>
   )
 }
 
-// --- Red za jedan fajl ---
+// --- Objedinjeni fullscreen loader ---
 
-interface UploadRowProps {
-  item: UploadItem
-  onRetry: (id: string) => void
-  onCancel: (id: string) => void
+interface UploadOverlayProps {
+  phase: OverlayPhase
+  percent: number
+  currentNumber: number
+  totalCount: number
+  currentName: string
+  errorCount: number
+  doneCount: number
+  onCancelAll: () => void
+  onRetryAll: () => void
+  onClose: () => void
 }
 
-function statusLabel(status: UploadStatus): string {
-  switch (status) {
-    case 'queued':
-      return 'Čeka'
-    case 'uploading':
-      return 'Uploaduje'
-    case 'done':
-      return 'Gotovo'
-    case 'error':
-      return 'Greška'
-  }
-}
-
-function UploadRow({ item, onRetry, onCancel }: UploadRowProps) {
-  const { id, name, progress, status, error } = item
+function UploadOverlay({
+  phase,
+  percent,
+  currentNumber,
+  totalCount,
+  currentName,
+  errorCount,
+  doneCount,
+  onCancelAll,
+  onRetryAll,
+  onClose,
+}: UploadOverlayProps) {
+  const isActive = phase === 'active'
+  const ringPercent = phase === 'success' ? 100 : percent
+  const dashOffset = RING_CIRC * (1 - ringPercent / 100)
 
   return (
-    <li className={`sf-file sf-file--${status}`}>
-      <div className="sf-file__icon" aria-hidden="true">
-        {status === 'done' && <CircleCheckBig size={18} />}
-        {status === 'error' && <CircleAlert size={18} />}
-        {status === 'uploading' && (
-          <LoaderCircle size={18} className="sf-file__spinner" />
-        )}
-        {status === 'queued' && <LoaderCircle size={18} />}
-      </div>
+    <div
+      className={`sf-overlay sf-overlay--${phase}`}
+      role="dialog"
+      aria-modal="true"
+      aria-live="polite"
+      aria-label="Napredak slanja"
+    >
+      <div className="sf-overlay__panel">
+        {isActive && (
+          <>
+            <div className="sf-overlay__ring" aria-hidden="true">
+              <svg viewBox="0 0 120 120" className="sf-overlay__ring-svg">
+                <circle
+                  className="sf-overlay__ring-track"
+                  cx="60"
+                  cy="60"
+                  r={RING_RADIUS}
+                />
+                <circle
+                  className="sf-overlay__ring-progress"
+                  cx="60"
+                  cy="60"
+                  r={RING_RADIUS}
+                  strokeDasharray={RING_CIRC}
+                  strokeDashoffset={dashOffset}
+                />
+              </svg>
+              <div className="sf-overlay__ring-label">
+                <span className="sf-overlay__percent">{percent}</span>
+                <span className="sf-overlay__percent-sign">%</span>
+              </div>
+            </div>
 
-      <div className="sf-file__body">
-        <div className="sf-file__head">
-          <span className="sf-file__name" title={name}>
-            {name}
-          </span>
-          <span className="sf-file__status">
-            {status === 'error' && error ? error : statusLabel(status)}
-          </span>
-        </div>
-
-        <div
-          className="sf-file__bar"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={progress}
-          aria-label={`Napredak za ${name}`}
-        >
-          <div
-            className="sf-file__bar-fill"
-            style={{ transform: `scaleX(${progress / 100})` }}
-          />
-        </div>
-      </div>
-
-      <div className="sf-file__actions">
-        {status === 'error' && (
-          <button
-            type="button"
-            className="sf-file__action"
-            aria-label={`Pokušaj ponovo: ${name}`}
-            onClick={() => onRetry(id)}
-          >
-            <RefreshCw size={16} aria-hidden="true" />
-          </button>
+            <p className="sf-overlay__status">
+              Uploadujem {currentNumber} od {totalCount}
+            </p>
+            {currentName && (
+              <p className="sf-overlay__file" title={currentName}>
+                {currentName}
+              </p>
+            )}
+            <button
+              type="button"
+              className="sf-overlay__link"
+              onClick={onCancelAll}
+            >
+              Otkaži
+            </button>
+          </>
         )}
-        {(status === 'uploading' || status === 'queued') && (
-          <button
-            type="button"
-            className="sf-file__action"
-            aria-label={`Otkaži: ${name}`}
-            onClick={() => onCancel(id)}
-          >
-            <X size={16} aria-hidden="true" />
-          </button>
+
+        {phase === 'success' && (
+          <>
+            <div className="sf-overlay__ring" aria-hidden="true">
+              <svg viewBox="0 0 120 120" className="sf-overlay__ring-svg">
+                <circle
+                  className="sf-overlay__ring-track"
+                  cx="60"
+                  cy="60"
+                  r={RING_RADIUS}
+                />
+                <circle
+                  className="sf-overlay__ring-progress sf-overlay__ring-progress--done"
+                  cx="60"
+                  cy="60"
+                  r={RING_RADIUS}
+                  strokeDasharray={RING_CIRC}
+                  strokeDashoffset={0}
+                />
+              </svg>
+              <div className="sf-overlay__ring-label">
+                <Heart
+                  size={40}
+                  className="sf-overlay__heart"
+                  aria-hidden="true"
+                />
+              </div>
+            </div>
+            <p className="sf-overlay__thanks">Hvala! Vaše slike su poslane</p>
+            <p className="sf-overlay__file">
+              {doneCount === 1
+                ? 'Sačuvana je 1 uspomena'
+                : `Sačuvano je ${doneCount} uspomena`}
+            </p>
+            <button
+              type="button"
+              className="sf-overlay__btn"
+              onClick={onClose}
+            >
+              Zatvori
+            </button>
+          </>
+        )}
+
+        {phase === 'error' && (
+          <>
+            <div className="sf-overlay__icon-badge" aria-hidden="true">
+              <CircleAlert size={44} />
+            </div>
+            <p className="sf-overlay__status">
+              {errorCount === 1
+                ? '1 fajl nije uspio'
+                : `${errorCount} fajla nije uspjelo`}
+            </p>
+            {doneCount > 0 && (
+              <p className="sf-overlay__file">
+                {doneCount === 1
+                  ? '1 uspomena je ipak poslana'
+                  : `${doneCount} uspomena je ipak poslano`}
+              </p>
+            )}
+            <div className="sf-overlay__actions">
+              <button
+                type="button"
+                className="sf-overlay__btn"
+                onClick={onRetryAll}
+              >
+                <RefreshCw size={16} aria-hidden="true" />
+                Pokušaj ponovo
+              </button>
+              <button
+                type="button"
+                className="sf-overlay__btn sf-overlay__btn--ghost"
+                onClick={onClose}
+              >
+                Zatvori
+              </button>
+            </div>
+          </>
         )}
       </div>
-    </li>
+    </div>
   )
 }
 
@@ -434,14 +608,17 @@ function UploadRow({ item, onRetry, onCancel }: UploadRowProps) {
 interface MediaGalleryProps {
   media: MediaItem[]
   loading: boolean
-  onOpen: (item: MediaItem) => void
+  onOpen: (index: number) => void
 }
 
 function MediaGallery({ media, loading, onOpen }: MediaGalleryProps) {
   return (
     <section className="sf-gallery__grid-section" aria-label="Galerija uspomena">
       <div className="sf-gallery__grid-header">
-        <p className="sf-gallery__eyebrow">Zajedničke uspomene</p>
+        <span className="sf-gallery__eyebrow">
+          <span className="sf-gallery__eyebrow-dot" aria-hidden="true" />
+          Zajedničke uspomene
+        </span>
         <h2 className="sf-gallery__subtitle">Galerija</h2>
       </div>
 
@@ -454,12 +631,12 @@ function MediaGallery({ media, loading, onOpen }: MediaGalleryProps) {
         </div>
       ) : (
         <ul className="sf-gallery__grid">
-          {media.map((m) => (
+          {media.map((m, index) => (
             <li key={m.id} className="sf-gallery__tile">
               <button
                 type="button"
                 className="sf-gallery__tile-btn"
-                onClick={() => onOpen(m)}
+                onClick={() => onOpen(index)}
                 aria-label={
                   m.mediaType === 'video'
                     ? `Otvori video${m.uploaderName ? ` — ${m.uploaderName}` : ''}`
@@ -467,10 +644,14 @@ function MediaGallery({ media, loading, onOpen }: MediaGalleryProps) {
                 }
               >
                 {m.thumbUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={m.thumbUrl}
-                    alt={m.uploaderName ? `Uspomena — ${m.uploaderName}` : 'Uspomena'}
+                    alt={
+                      m.uploaderName ? `Uspomena — ${m.uploaderName}` : 'Uspomena'
+                    }
                     loading="lazy"
+                    decoding="async"
                     className="sf-gallery__tile-img"
                   />
                 ) : (
@@ -495,18 +676,56 @@ function MediaGallery({ media, loading, onOpen }: MediaGalleryProps) {
 // --- Lightbox ---
 
 interface LightboxProps {
-  item: MediaItem
+  media: MediaItem[]
+  index: number
   onClose: () => void
+  onNavigate: (dir: number) => void
 }
 
-function Lightbox({ item, onClose }: LightboxProps) {
+function Lightbox({ media, index, onClose, onNavigate }: LightboxProps) {
+  const item = media[index]
+  const total = media.length
+  const hasSiblings = total > 1
+  // Blur-up: izvedeno iz URL-a koji se učitao (bez reset-efekta na navigaciju).
+  const [loadedUrl, setLoadedUrl] = useState<string | null>(null)
+  const fullLoaded = loadedUrl === item.url
+  const touchStartX = useRef<number | null>(null)
+
+  // Tipke: strelice + Escape.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
+      else if (e.key === 'ArrowLeft') onNavigate(-1)
+      else if (e.key === 'ArrowRight') onNavigate(1)
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [onClose, onNavigate])
+
+  // Preload susjednih punih slika (prethodna + sljedeća) radi brže navigacije.
+  useEffect(() => {
+    if (total === 0) return
+    for (const dir of [-1, 1]) {
+      const neighbor = media[(index + dir + total) % total]
+      if (neighbor && neighbor.mediaType === 'image') {
+        const img = new window.Image()
+        img.src = neighbor.url
+      }
+    }
+  }, [index, media, total])
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.changedTouches[0]?.clientX ?? null
+  }
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStartX.current
+    touchStartX.current = null
+    if (start === null || !hasSiblings) return
+    const dx = (e.changedTouches[0]?.clientX ?? start) - start
+    if (Math.abs(dx) < SWIPE_THRESHOLD_PX) return
+    onNavigate(dx < 0 ? 1 : -1)
+  }
 
   return (
     <div
@@ -525,7 +744,26 @@ function Lightbox({ item, onClose }: LightboxProps) {
         <X size={22} aria-hidden="true" />
       </button>
 
-      <div className="sf-lightbox__stage" onClick={(e) => e.stopPropagation()}>
+      {hasSiblings && (
+        <button
+          type="button"
+          className="sf-lightbox__nav sf-lightbox__nav--prev"
+          aria-label="Prethodna"
+          onClick={(e) => {
+            e.stopPropagation()
+            onNavigate(-1)
+          }}
+        >
+          <ChevronLeft size={26} aria-hidden="true" />
+        </button>
+      )}
+
+      <div
+        className="sf-lightbox__stage"
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         {item.mediaType === 'video' ? (
           <video
             className="sf-lightbox__media"
@@ -535,16 +773,57 @@ function Lightbox({ item, onClose }: LightboxProps) {
             playsInline
           />
         ) : (
-          <img
-            className="sf-lightbox__media"
-            src={item.url}
-            alt={item.uploaderName ? `Uspomena — ${item.uploaderName}` : 'Uspomena'}
-          />
+          <div className="sf-lightbox__frame">
+            {item.thumbUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                className={`sf-lightbox__blur${
+                  fullLoaded ? ' is-hidden' : ''
+                }`}
+                src={item.thumbUrl}
+                alt=""
+                aria-hidden="true"
+              />
+            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={`sf-lightbox__media sf-lightbox__full${
+                fullLoaded ? ' is-loaded' : ''
+              }`}
+              src={item.url}
+              alt={
+                item.uploaderName ? `Uspomena — ${item.uploaderName}` : 'Uspomena'
+              }
+              onLoad={() => setLoadedUrl(item.url)}
+            />
+          </div>
         )}
-        {item.uploaderName && (
-          <p className="sf-lightbox__caption">{item.uploaderName}</p>
-        )}
+
+        <div className="sf-lightbox__meta">
+          {item.uploaderName && (
+            <p className="sf-lightbox__caption">{item.uploaderName}</p>
+          )}
+          {hasSiblings && (
+            <p className="sf-lightbox__counter">
+              {index + 1} / {total}
+            </p>
+          )}
+        </div>
       </div>
+
+      {hasSiblings && (
+        <button
+          type="button"
+          className="sf-lightbox__nav sf-lightbox__nav--next"
+          aria-label="Sljedeća"
+          onClick={(e) => {
+            e.stopPropagation()
+            onNavigate(1)
+          }}
+        >
+          <ChevronRight size={26} aria-hidden="true" />
+        </button>
+      )}
     </div>
   )
 }
