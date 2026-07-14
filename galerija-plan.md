@@ -168,7 +168,16 @@ Rate limiting na upload endpointima (jednostavan in-memory limiter po IP-u).
    `db/create-admin.mjs`; bucket testiran (fsn1), SDK instaliran, env sređen.
    PREOSTAJE: kreirati admin nalog `ismetcosic` (nakon deploya, preko
    `create-admin.mjs` u app kontejneru — da lozinka ne prolazi kroz chat).
-2. **Admin panel** — ✅ GOTOVO (kod, lokalno; nije još deployano): login
+2. **Admin panel** — ✅ GOTOVO I DEPLOYANO NA PRODUKCIJU (verifikovano 2026-07):
+   prijava/kreiranje/linkovi/brisanje testirani uživo na /admin. Admin nalog
+   `ismetcosic` kreiran.
+   NAPOMENA (deploy gotcha): Dockerfile koristi Next standalone → `bcryptjs`/`mysql2`
+   su bundlovani, NISU u `/app/node_modules`, pa `db/create-admin.mjs` NE radi u
+   kontejneru. Admin nalog se kreira: (1) hash lokalno
+   `node -e "console.log(require('bcryptjs').hashSync(process.argv[1],10))" "LOZINKA"`,
+   (2) upis preko db kontejnera `docker exec -i sweetflower-db-1 mysql ... << 'SQL' INSERT INTO admins ...`.
+   S3_* varijable su dodane i u `docker-compose.yml` (app env) i u server `.env`.
+   Detaljno (kod, lokalno; deploy):
    (`/api/auth/admin-login` + rate limit), `/admin` stranica, `GalleriesDashboard`
    (lista sa statistikom, kreiranje preko modala, kopiranje linkova, brisanje sa
    bucket cleanupom), CRUD API rute sa admin auth guardom. Typecheck prolazi.
@@ -178,9 +187,19 @@ Rate limiting na upload endpointima (jednostavan in-memory limiter po IP-u).
    guardovi u s3 ključevima, validacija (title/date/invitationId), logout cookie
    path, delete error UX, a11y aria-label. Odgođeno (nije blocker): htmlFor
    label asocijacija, rate limit na couple-login (ruta dolazi u Fazi 4).
-3. **Guest upload** — `/galerija/[slug]`: multi-file picker, klijentski thumb,
-   custom multipart uploader po spec-u iznad; mobile-first dizajn.
-   Definicija "gotovo" uključuje testove na throttled mreži i prekidima.
+3. **Guest upload** — ✅ IZGRAĐENO (agenti backend+frontend, lokalno; build zelen;
+   NIJE još deployano): `/galerija/[slug]` (imena/datum, upload dugme, ime opciono,
+   javni grid+lightbox), custom multipart uploader (lib/upload/), klijentski
+   thumbnaili, 5 API ruta (init/sign-part/complete/abort/media). Stil usklađen s
+   glavnim sajtom (peach paleta, Cormorant/Plus Jakarta).
+   Review (security-reviewer + typescript-reviewer): 2 CRITICAL + više HIGH nađeno
+   i POPRAVLJENO — abort IDOR (provjera vlasništva+status), server-side cap veličine
+   (sign-part limit dijelova + HeadObject na complete), rate limit na sve upload rute,
+   stall watchdog na XHR, ograničen 403 re-sign, complete retry + idempotentnost,
+   klasifikacija trajnih 4xx, length caps, unmount zaustavlja queue, cancel status.
+   Bucket: CORS (ExposeHeaders ETag) + lifecycle (abort nedovršenih nakon 2 dana).
+   ODGOĐENO (nije blocker): otkazivanje sibling in-flight dijelova na fatalnu grešku
+   (samo bandwidth), resume preko sessionStorage nakon refresha (polish), LOW kozmetika.
 4. **Pregled** — javni grid + lightbox (lazy load, paginacija); mladenci stranica
    (login, pregled, brisanje, download pojedinačno + ZIP).
 5. **Polish + deploy** — OG meta tagovi, testiranje na iOS/Android (HEIC!),

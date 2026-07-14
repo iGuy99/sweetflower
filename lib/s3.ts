@@ -5,6 +5,7 @@ import {
   CompleteMultipartUploadCommand,
   AbortMultipartUploadCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   DeleteObjectsCommand,
   ListObjectsV2Command,
 } from '@aws-sdk/client-s3'
@@ -131,6 +132,12 @@ export async function signSimpleUpload(key: string, contentType: string): Promis
 export async function signDownload(key: string): Promise<string> {
   const command = new GetObjectCommand({ Bucket: getBucket(), Key: key })
   return getSignedUrl(getS3(), command, { expiresIn: GET_URL_TTL })
+}
+
+// Stvarna veličina objekta na bucketu (za provjeru da upload ne prelazi limit).
+export async function headObjectSize(key: string): Promise<number> {
+  const res = await getS3().send(new HeadObjectCommand({ Bucket: getBucket(), Key: key }))
+  return res.ContentLength ?? 0
 }
 
 // --- Brisanje ---

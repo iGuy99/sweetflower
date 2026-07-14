@@ -1,0 +1,613 @@
+/* ============================================================
+   Guest gallery — usklađeno sa sweetflowerevents.com tokenima.
+   Mobile-first (gosti su na telefonima). Kompozitor-friendly
+   animacije (transform/opacity). Reduced-motion fallback.
+   ============================================================ */
+
+.sf-gallery-root {
+  --peach-50: #fffbf0;
+  --peach-100: #fff1e0;
+  --peach-200: #ffe4d5;
+  --peach-300: #ffd7ca;
+  --peach-500: #f5b8a8;
+  --peach-700: #b8806e;
+
+  --ink: #1a1817;
+  --ink-soft: #434141;
+  --ink-muted: #6b6563;
+
+  --line: rgba(58, 42, 34, 0.12);
+  --shadow-sm: 0 2px 8px rgba(58, 42, 34, 0.06);
+  --shadow-md: 0 8px 24px rgba(58, 42, 34, 0.08);
+  --shadow-lg: 0 18px 48px rgba(58, 42, 34, 0.12);
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --btn: #43241a;
+  --btn-hover: #593327;
+
+  --container: 900px;
+
+  background: var(--peach-50);
+  color: var(--ink);
+  font-family: var(--font-body), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+.sf-gallery {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Suptilna peach atmosfera umjesto hero slike. */
+.sf-gallery__atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      120% 60% at 50% -10%,
+      var(--peach-200) 0%,
+      var(--peach-100) 38%,
+      var(--peach-50) 72%
+    );
+}
+
+.sf-gallery__container {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 56px 20px 80px;
+}
+
+/* ── Hero header ── */
+
+.sf-gallery__hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 0 40px;
+}
+
+.sf-gallery__eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--peach-700);
+  margin: 0;
+}
+
+.sf-gallery__title {
+  font-family: var(--font-display), 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.08;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  color: var(--ink);
+  margin: 0;
+  max-width: 20ch;
+}
+
+.sf-gallery__date {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.sf-gallery__lede {
+  font-size: 1rem;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  max-width: 46ch;
+  margin: 6px 0 0;
+}
+
+/* ── Uploader kartica ── */
+
+.sf-gallery__uploader {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 24px 20px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sf-gallery__name-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.sf-gallery__label {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.sf-gallery__input {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--peach-50);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--dur, 200ms) ease, background var(--dur, 200ms) ease;
+}
+
+.sf-gallery__input:focus-visible {
+  outline: none;
+  border-color: var(--peach-500);
+  background: #fff;
+}
+
+.sf-gallery__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Primarno dugme — brand */
+.sf-gallery__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 24px;
+  font-family: var(--font-display), 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--btn);
+  border: 1px solid var(--btn);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+
+.sf-gallery__cta:hover {
+  background: var(--btn-hover);
+  border-color: var(--btn-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.sf-gallery__cta:active {
+  transform: translateY(1px);
+}
+
+.sf-gallery__cta:focus-visible {
+  outline: 2px solid var(--peach-700);
+  outline-offset: 3px;
+}
+
+/* ── Lista fajlova ── */
+
+.sf-gallery__file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sf-file {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--peach-50);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  animation: sf-fade-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sf-file__icon {
+  flex: 0 0 auto;
+  color: var(--peach-700);
+  display: grid;
+  place-items: center;
+  padding-top: 1px;
+}
+
+.sf-file--done .sf-file__icon {
+  color: #4a7c59;
+}
+
+.sf-file--error .sf-file__icon {
+  color: #b4462f;
+}
+
+.sf-file__spinner {
+  animation: sf-spin 900ms linear infinite;
+}
+
+.sf-file__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sf-file__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sf-file__name {
+  font-size: 0.9rem;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sf-file__status {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  max-width: 55%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sf-file--error .sf-file__status {
+  color: #b4462f;
+}
+
+.sf-file--done .sf-file__status {
+  color: #4a7c59;
+}
+
+.sf-file__bar {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--peach-200);
+  overflow: hidden;
+}
+
+.sf-file__bar-fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--peach-500), var(--peach-700));
+  border-radius: 999px;
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sf-file--done .sf-file__bar-fill {
+  background: #4a7c59;
+}
+
+.sf-file--error .sf-file__bar-fill {
+  background: #b4462f;
+}
+
+.sf-file__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.sf-file__action {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--ink-soft);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+.sf-file__action:hover {
+  background: var(--peach-100);
+  color: var(--ink);
+  border-color: var(--peach-300);
+}
+
+.sf-file__action:focus-visible {
+  outline: 2px solid var(--peach-700);
+  outline-offset: 2px;
+}
+
+.sf-gallery__thanks {
+  margin: 2px 0 0;
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 0.92rem;
+  color: #4a7c59;
+  background: rgba(74, 124, 89, 0.08);
+  border: 1px solid rgba(74, 124, 89, 0.2);
+  border-radius: var(--radius-md);
+}
+
+/* ── Privatna poruka ── */
+
+.sf-gallery__private {
+  margin-top: 40px;
+}
+
+.sf-gallery__private-note {
+  text-align: center;
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--ink-soft);
+  padding: 28px;
+  background: #fff;
+  border: 1px dashed var(--peach-300);
+  border-radius: var(--radius-md);
+}
+
+/* ── Grid galerije ── */
+
+.sf-gallery__grid-section {
+  margin-top: 56px;
+}
+
+.sf-gallery__grid-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 28px;
+}
+
+.sf-gallery__subtitle {
+  font-family: var(--font-display), 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  color: var(--ink);
+  margin: 0;
+}
+
+.sf-gallery__grid-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--ink-muted);
+  background: #fff;
+  border: 1px dashed var(--peach-300);
+  border-radius: var(--radius-md);
+}
+
+.sf-gallery__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.sf-gallery__tile {
+  margin: 0;
+}
+
+.sf-gallery__tile-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--peach-100);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 260ms ease;
+}
+
+.sf-gallery__tile-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.sf-gallery__tile-btn:focus-visible {
+  outline: 2px solid var(--peach-700);
+  outline-offset: 2px;
+}
+
+.sf-gallery__tile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sf-gallery__tile-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--peach-700);
+  background: linear-gradient(135deg, var(--peach-200), var(--peach-100));
+}
+
+.sf-gallery__tile-badge {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: #fff;
+  background: rgba(26, 24, 23, 0.55);
+  border-radius: 50%;
+  backdrop-filter: blur(2px);
+}
+
+/* ── Lightbox ── */
+
+.sf-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(26, 24, 23, 0.82);
+  backdrop-filter: blur(4px);
+  animation: sf-fade-in 220ms ease both;
+}
+
+.sf-lightbox__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+
+.sf-lightbox__close:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.sf-lightbox__close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.sf-lightbox__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.sf-lightbox__media {
+  max-width: min(92vw, 1100px);
+  max-height: 82vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  background: #000;
+}
+
+.sf-lightbox__caption {
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+/* ── Animacije ── */
+
+@keyframes sf-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Breakpoints ── */
+
+@media (min-width: 620px) {
+  .sf-gallery__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .sf-gallery__cta {
+    width: auto;
+    align-self: center;
+    padding: 16px 40px;
+  }
+}
+
+@media (min-width: 900px) {
+  .sf-gallery__container {
+    padding: 72px 32px 100px;
+  }
+
+  .sf-gallery__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ── Reduced motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .sf-file,
+  .sf-lightbox {
+    animation: none;
+  }
+
+  .sf-file__spinner {
+    animation: none;
+  }
+
+  .sf-file__bar-fill {
+    transition: none;
+  }
+
+  .sf-gallery__cta,
+  .sf-gallery__tile-btn {
+    transition: none;
+  }
+
+  .sf-gallery__cta:active,
+  .sf-gallery__tile-btn:hover {
+    transform: none;
+  }
+}
