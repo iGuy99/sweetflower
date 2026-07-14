@@ -1,0 +1,376 @@
+/* SweetFlower — Galerije Admin panel */
+
+.gadmin-page,
+.gadmin-login-page {
+  --g-bg: #f7f4ef;
+  --g-surface: #ffffff;
+  --g-ink: #2b2622;
+  --g-muted: #8a8178;
+  --g-line: #e7e0d6;
+  --g-accent: #b08968;
+  --g-accent-ink: #7a5c42;
+  --g-danger: #c0492f;
+  --g-radius: 16px;
+  --g-shadow: 0 6px 24px rgba(60, 46, 33, 0.08);
+  min-height: 100vh;
+  background: var(--g-bg);
+  color: var(--g-ink);
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+/* --- Login --- */
+
+.gadmin-login-page {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.gadmin-login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--g-surface);
+  border: 1px solid var(--g-line);
+  border-radius: var(--g-radius);
+  box-shadow: var(--g-shadow);
+  padding: 40px 32px;
+}
+
+.gadmin-login-head {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.gadmin-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--g-accent-ink);
+  margin: 0;
+}
+
+.gadmin-login-title,
+.gadmin-h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.9rem;
+  font-weight: 600;
+  margin: 6px 0 0;
+  letter-spacing: -0.01em;
+}
+
+/* --- Forms --- */
+
+.gadmin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gadmin-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--g-muted);
+  margin-top: 14px;
+}
+
+.gadmin-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--g-line);
+  border-radius: 10px;
+  background: #fbf9f6;
+  font-size: 1rem;
+  color: var(--g-ink);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.gadmin-input:focus {
+  outline: none;
+  border-color: var(--g-accent);
+  box-shadow: 0 0 0 3px rgba(176, 137, 104, 0.15);
+}
+
+.gadmin-hint {
+  font-size: 0.78rem;
+  color: var(--g-muted);
+  margin: 4px 0 0;
+  word-break: break-all;
+}
+
+.gadmin-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.gadmin-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--g-accent);
+}
+
+.gadmin-error {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: rgba(192, 73, 47, 0.08);
+  border: 1px solid rgba(192, 73, 47, 0.25);
+  border-radius: 10px;
+  color: var(--g-danger);
+  font-size: 0.88rem;
+}
+
+/* --- Buttons --- */
+
+.gadmin-btn-primary,
+.gadmin-btn-ghost,
+.gadmin-btn-danger,
+.gadmin-btn-danger-ghost,
+.gadmin-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s;
+}
+
+.gadmin-btn-primary {
+  margin-top: 22px;
+  padding: 12px 20px;
+  background: var(--g-accent);
+  color: #fff;
+}
+
+.gadmin-btn-primary:hover:not(:disabled) { background: var(--g-accent-ink); transform: translateY(-1px); }
+.gadmin-btn-primary:disabled { opacity: 0.6; cursor: default; }
+
+.gadmin-btn-ghost {
+  padding: 10px 16px;
+  background: transparent;
+  border-color: var(--g-line);
+  color: var(--g-ink);
+}
+.gadmin-btn-ghost:hover { background: #efe9e0; }
+
+.gadmin-btn-danger {
+  padding: 11px 18px;
+  background: var(--g-danger);
+  color: #fff;
+}
+.gadmin-btn-danger:hover { background: #a13a24; }
+
+.gadmin-btn-danger-ghost {
+  padding: 8px 12px;
+  background: transparent;
+  border-color: transparent;
+  color: var(--g-danger);
+  font-size: 0.85rem;
+}
+.gadmin-btn-danger-ghost:hover { background: rgba(192, 73, 47, 0.08); }
+
+/* --- Topbar --- */
+
+.gadmin-topbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px clamp(16px, 4vw, 48px);
+  border-bottom: 1px solid var(--g-line);
+  background: var(--g-surface);
+  flex-wrap: wrap;
+}
+
+.gadmin-topbar-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* --- Grid galerija --- */
+
+.gadmin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: clamp(16px, 4vw, 48px);
+}
+
+.gadmin-card {
+  background: var(--g-surface);
+  border: 1px solid var(--g-line);
+  border-radius: var(--g-radius);
+  padding: 22px;
+  box-shadow: var(--g-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gadmin-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.gadmin-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.gadmin-card-sub {
+  font-size: 0.8rem;
+  color: var(--g-muted);
+  margin: 4px 0 0;
+  word-break: break-all;
+}
+
+.gadmin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.gadmin-badge.is-public { background: rgba(90, 140, 90, 0.12); color: #4a7a4a; }
+.gadmin-badge.is-private { background: #efe9e0; color: var(--g-muted); }
+
+.gadmin-card-stats {
+  display: flex;
+  gap: 18px;
+  font-size: 0.85rem;
+  color: var(--g-accent-ink);
+}
+
+.gadmin-card-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gadmin-card-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gadmin-link-btn {
+  padding: 10px 12px;
+  background: #fbf9f6;
+  border-color: var(--g-line);
+  color: var(--g-accent-ink);
+  justify-content: flex-start;
+}
+.gadmin-link-btn:hover { background: #f2ece3; border-color: var(--g-accent); }
+
+.gadmin-card-foot {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--g-line);
+  padding-top: 12px;
+}
+
+/* --- Empty --- */
+
+.gadmin-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 80px 24px;
+  color: var(--g-muted);
+  text-align: center;
+}
+
+/* --- Modal --- */
+
+.gadmin-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 38, 34, 0.5);
+  backdrop-filter: blur(3px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.gadmin-modal {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--g-surface);
+  border-radius: var(--g-radius);
+  padding: 32px;
+  box-shadow: 0 20px 60px rgba(43, 38, 34, 0.25);
+}
+
+.gadmin-modal h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.gadmin-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  color: var(--g-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+}
+.gadmin-modal-close:hover { background: #efe9e0; color: var(--g-ink); }
+
+.gadmin-modal-danger { text-align: center; }
+
+.gadmin-modal-icon {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin: 4px auto 14px;
+  border-radius: 50%;
+  background: rgba(192, 73, 47, 0.1);
+  color: var(--g-danger);
+}
+
+.gadmin-modal-danger p { color: var(--g-muted); font-size: 0.92rem; margin: 8px 0; }
+.gadmin-danger-note { color: var(--g-danger) !important; font-weight: 600; }
+
+.gadmin-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 22px;
+}
+
+@media (max-width: 520px) {
+  .gadmin-topbar { align-items: stretch; }
+  .gadmin-topbar-actions { width: 100%; }
+  .gadmin-topbar-actions button { flex: 1; }
+  .gadmin-grid { grid-template-columns: 1fr; }
+}
