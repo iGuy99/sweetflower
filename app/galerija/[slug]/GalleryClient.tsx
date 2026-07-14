@@ -265,6 +265,32 @@ export default function GalleryClient({
     return () => clearTimeout(t)
   }, [overlayPhase, overlayDismissed])
 
+  // Zaključaj scroll pozadine dok je lightbox ili overlay otvoren (iOS-safe:
+  // position:fixed na body-ju spriječava i "rubber-band" skrolanje ispod).
+  useEffect(() => {
+    const locked = lightboxIndex !== null || overlayVisible
+    if (!locked) return
+    const scrollY = window.scrollY
+    const body = document.body
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    }
+    body.style.position = 'fixed'
+    body.style.top = `-${scrollY}px`
+    body.style.width = '100%'
+    body.style.overflow = 'hidden'
+    return () => {
+      body.style.position = prev.position
+      body.style.top = prev.top
+      body.style.width = prev.width
+      body.style.overflow = prev.overflow
+      window.scrollTo(0, scrollY)
+    }
+  }, [lightboxIndex, overlayVisible])
+
   const handleFilesSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const list = event.target.files

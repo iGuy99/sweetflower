@@ -707,8 +707,8 @@
   padding:
     max(14px, env(safe-area-inset-top)) 14px
     calc(env(safe-area-inset-bottom) + 14px);
-  background: rgba(20, 14, 9, 0.9);
-  backdrop-filter: blur(4px);
+  background: rgba(18, 12, 8, 0.98); /* skoro neprozirno — pozadina ne proviruje */
+  backdrop-filter: blur(6px);
   animation: sf-overlay-in 220ms ease both;
 }
 
