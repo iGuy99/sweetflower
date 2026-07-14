@@ -66,15 +66,17 @@ const RING_CIRC = 2 * Math.PI * RING_RADIUS
 
 // --- Pomoćne ---
 
+const BS_MONTHS = [
+  'januara', 'februara', 'marta', 'aprila', 'maja', 'juna',
+  'jula', 'augusta', 'septembra', 'oktobra', 'novembra', 'decembra',
+]
+
 function formatEventDate(value: string | null): string | null {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return null
-  return new Intl.DateTimeFormat('hr-HR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date)
+  // Ručno formatiranje (bosanski) — ne oslanja se na Intl locale podršku.
+  return `${date.getDate()}. ${BS_MONTHS[date.getMonth()]} ${date.getFullYear()}.`
 }
 
 function errorMessage(err: unknown): string {
@@ -82,6 +84,15 @@ function errorMessage(err: unknown): string {
   if (err instanceof UploadError) return err.message
   if (err instanceof Error) return err.message
   return 'Greška pri uploadu'
+}
+
+/** Prezentacijska pomoćna: "Atida & Ismet" -> ["Atida", "Ismet"] za istaknuti naslov. */
+function splitCoupleNames(value: string): [string, string] | null {
+  const parts = value.split(/\s*&\s*/)
+  if (parts.length === 2 && parts[0].trim() && parts[1].trim()) {
+    return [parts[0].trim(), parts[1].trim()]
+  }
+  return null
 }
 
 // --- Komponenta ---
@@ -112,6 +123,7 @@ export default function GalleryClient({
   const stoppedRef = useRef(false) // postavljeno na unmount — zaustavlja novi rad
 
   const formattedDate = formatEventDate(eventDate)
+  const coupleNames = splitCoupleNames(title)
 
   // Agregatni napredak trenutne serije (queued + uploading + terminalni članovi serije).
   const activeCount = items.filter(
@@ -342,12 +354,31 @@ export default function GalleryClient({
             <span className="sf-gallery__eyebrow-dot" aria-hidden="true" />
             Podijelite uspomene
           </span>
-          <h1 className="sf-gallery__title sf-gallery__fade sf-gallery__fade--2">
-            {title}
-          </h1>
+
+          {coupleNames ? (
+            <h1 className="sf-gallery__title sf-gallery__fade sf-gallery__fade--2">
+              <span className="sf-gallery__title-name">{coupleNames[0]}</span>
+              <span className="sf-gallery__title-amp" aria-hidden="true">
+                &amp;
+              </span>
+              <span className="sf-gallery__title-name">{coupleNames[1]}</span>
+            </h1>
+          ) : (
+            <h1 className="sf-gallery__title sf-gallery__fade sf-gallery__fade--2">
+              {title}
+            </h1>
+          )}
+
+          <span
+            className="sf-gallery__ornament sf-gallery__fade sf-gallery__fade--2"
+            aria-hidden="true"
+          >
+            <span className="sf-gallery__ornament-dot" />
+          </span>
+
           {formattedDate && (
             <span className="sf-gallery__promise sf-gallery__fade sf-gallery__fade--2">
-              — {formattedDate} —
+              {formattedDate}
             </span>
           )}
           <p className="sf-gallery__lede sf-gallery__fade sf-gallery__fade--3">
@@ -620,6 +651,12 @@ function MediaGallery({ media, loading, onOpen }: MediaGalleryProps) {
           Zajedničke uspomene
         </span>
         <h2 className="sf-gallery__subtitle">Galerija</h2>
+        <span
+          className="sf-gallery__ornament sf-gallery__ornament--sm"
+          aria-hidden="true"
+        >
+          <span className="sf-gallery__ornament-dot" />
+        </span>
       </div>
 
       {loading ? (
