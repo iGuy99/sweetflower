@@ -700,10 +700,13 @@
 .sf-lightbox {
   position: fixed;
   inset: 0;
+  height: 100dvh; /* dvh = stvarni vidljivi viewport (iOS Safari toolbar-safe) */
   z-index: 100;
   display: grid;
   place-items: center;
-  padding: 20px;
+  padding:
+    max(14px, env(safe-area-inset-top)) 14px
+    calc(env(safe-area-inset-bottom) + 14px);
   background: rgba(20, 14, 9, 0.9);
   backdrop-filter: blur(4px);
   animation: sf-overlay-in 220ms ease both;
@@ -772,16 +775,17 @@
   max-height: 100%;
 }
 
+/* Medij zauzme prostor, ali OSTAVI mjesta za meta/download da ne izađe iz ekrana. */
 .sf-lightbox__frame {
   position: relative;
   display: inline-flex;
-  max-width: min(92vw, 1100px);
-  max-height: 82vh;
+  max-width: min(94vw, 1100px);
+  max-height: min(78vh, calc(100dvh - 172px));
 }
 
 .sf-lightbox__media {
-  max-width: min(92vw, 1100px);
-  max-height: 82vh;
+  max-width: min(94vw, 1100px);
+  max-height: min(78vh, calc(100dvh - 172px));
   width: auto;
   height: auto;
   object-fit: contain;
@@ -823,7 +827,44 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.sf-lightbox__meta-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 4px;
+}
+
+.sf-lightbox__download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--gold-line);
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.sf-lightbox__download:hover {
+  background: rgba(184, 134, 63, 0.25);
+  border-color: var(--gold);
+}
+
+.sf-lightbox__download:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .sf-lightbox__caption {

@@ -129,8 +129,20 @@ export async function signSimpleUpload(key: string, contentType: string): Promis
 
 // --- Čitanje (presigned GET za pregled) ---
 
-export async function signDownload(key: string): Promise<string> {
-  const command = new GetObjectCommand({ Bucket: getBucket(), Key: key })
+// downloadName: ako je zadano, S3 vraća Content-Disposition: attachment pa
+// browser forsira preuzimanje (umjesto otvaranja u tabu) — radi i cross-origin.
+export async function signDownload(key: string, downloadName?: string): Promise<string> {
+  const command = new GetObjectCommand({
+    Bucket: getBucket(),
+    Key: key,
+    ...(downloadName
+      ? {
+          ResponseContentDisposition: `attachment; filename="${downloadName
+            .replace(/[^\w.\- ]/g, '_')
+            .slice(0, 100)}"`,
+        }
+      : {}),
+  })
   return getSignedUrl(getS3(), command, { expiresIn: GET_URL_TTL })
 }
 

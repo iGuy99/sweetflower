@@ -39,6 +39,7 @@ export async function GET(
         mediaType: row.media_type,
         thumbUrl: row.thumb_key ? await signDownload(row.thumb_key) : null,
         url: await signDownload(row.object_key),
+        downloadUrl: await signDownload(row.object_key, row.file_name),
         uploaderName: row.uploader_name,
         fileName: row.file_name,
         createdAt: row.created_at,

@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Heart,
+  Download,
 } from 'lucide-react'
 import {
   uploadFile,
@@ -48,6 +49,7 @@ interface MediaItem {
   mediaType: 'image' | 'video'
   thumbUrl: string | null
   url: string
+  downloadUrl: string
   uploaderName: string | null
   fileName: string
   createdAt: string
@@ -837,14 +839,25 @@ function Lightbox({ media, index, onClose, onNavigate }: LightboxProps) {
         )}
 
         <div className="sf-lightbox__meta">
-          {item.uploaderName && (
-            <p className="sf-lightbox__caption">{item.uploaderName}</p>
-          )}
-          {hasSiblings && (
-            <p className="sf-lightbox__counter">
-              {index + 1} / {total}
-            </p>
-          )}
+          <a
+            className="sf-lightbox__download"
+            href={item.downloadUrl}
+            download={item.fileName}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Download size={16} aria-hidden="true" />
+            Preuzmi
+          </a>
+          <div className="sf-lightbox__meta-text">
+            {item.uploaderName && (
+              <p className="sf-lightbox__caption">{item.uploaderName}</p>
+            )}
+            {hasSiblings && (
+              <p className="sf-lightbox__counter">
+                {index + 1} / {total}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
