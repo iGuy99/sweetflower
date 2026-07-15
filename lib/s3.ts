@@ -10,6 +10,7 @@ import {
   ListObjectsV2Command,
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import type { Readable } from 'node:stream'
 
 // --- Lazy konfiguracija iz env-a ---
 // Validacija i kreiranje klijenta se dešavaju pri prvom pozivu (runtime), NE pri
@@ -144,6 +145,13 @@ export async function signDownload(key: string, downloadName?: string): Promise<
       : {}),
   })
   return getSignedUrl(getS3(), command, { expiresIn: GET_URL_TTL })
+}
+
+// Node Readable stream objekta — za streaming ZIP-a (mladenci download).
+export async function getObjectStream(key: string): Promise<Readable> {
+  const res = await getS3().send(new GetObjectCommand({ Bucket: getBucket(), Key: key }))
+  if (!res.Body) throw new Error(`S3 objekat nema tijelo: ${key}`)
+  return res.Body as Readable
 }
 
 // Stvarna veličina objekta na bucketu (za provjeru da upload ne prelazi limit).

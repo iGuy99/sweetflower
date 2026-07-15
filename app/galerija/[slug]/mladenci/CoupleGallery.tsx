@@ -156,6 +156,17 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
     const items = media.filter((m) => selected.has(m.id))
     if (items.length === 0) return
 
+    // > 5 fajlova: ZIP ruta (jedan HTTP zahtjev, server streamuje arhivu).
+    if (items.length > DIRECT_DOWNLOAD_MAX) {
+      const ids = items.map((m) => m.id).join(',')
+      const a = document.createElement('a')
+      a.href = `/api/galerija/${encodeURIComponent(slug)}/mladenci/zip?ids=${ids}`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      return
+    }
+
     setIsDownloading(true)
     try {
       // ≤ 5 fajlova: sekvencijalni pojedinačni download (mali razmak da
@@ -172,7 +183,7 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
     } finally {
       setIsDownloading(false)
     }
-  }, [media, selected])
+  }, [slug, media, selected])
 
   return (
     <main className="sf-couple" style={themeToStyle(theme) as React.CSSProperties}>
@@ -206,14 +217,7 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
                 type="button"
                 className="sf-couple__action-btn"
                 onClick={handleDownloadSelected}
-                disabled={
-                  selectedCount === 0 || isDownloading || selectedCount > DIRECT_DOWNLOAD_MAX
-                }
-                title={
-                  selectedCount > DIRECT_DOWNLOAD_MAX
-                    ? 'Preuzimanje više od 5 odjednom stiže uskoro (ZIP)'
-                    : undefined
-                }
+                disabled={selectedCount === 0 || isDownloading}
               >
                 <Download size={15} aria-hidden="true" />
                 {isDownloading ? 'Preuzimam...' : 'Preuzmi selektovano'}
@@ -235,15 +239,20 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
           </>
         ) : (
           <>
-            <button
-              type="button"
-              className="sf-couple__action-btn"
-              disabled
-              title="Uskoro dostupno"
-            >
-              <PackageOpen size={15} aria-hidden="true" />
-              Preuzmi sve (ZIP)
-            </button>
+            {media.length > 0 ? (
+              <a
+                className="sf-couple__action-btn"
+                href={`/api/galerija/${encodeURIComponent(slug)}/mladenci/zip`}
+              >
+                <PackageOpen size={15} aria-hidden="true" />
+                Preuzmi sve (ZIP)
+              </a>
+            ) : (
+              <button type="button" className="sf-couple__action-btn" disabled>
+                <PackageOpen size={15} aria-hidden="true" />
+                Preuzmi sve (ZIP)
+              </button>
+            )}
             <button
               type="button"
               className="sf-couple__action-btn"
