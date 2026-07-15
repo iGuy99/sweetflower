@@ -1,0 +1,386 @@
+/* ============================================================
+   Mladenci stranica — ISTA tema kao guest galerija (tokeni iz gallery.css,
+   dijeljeni preko .sf-couple selektora u tom fajlu), diskretna akciona traka.
+   Prefiks: sf-couple__. Mobile-first.
+   ============================================================ */
+
+.sf-couple {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--t-bg);
+  padding-bottom: 60px;
+}
+
+.sf-couple__atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    120% 60% at 50% -10%,
+    var(--ivory-300) 0%,
+    var(--ivory-200) 32%,
+    var(--ivory-100) 62%,
+    var(--ivory-100) 100%
+  );
+}
+
+.sf-couple__error {
+  color: var(--error);
+  font-size: 0.88rem;
+  margin: 6px 0 0;
+}
+
+/* ── Login ── */
+
+.sf-couple--login {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.sf-couple__login-card {
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  background: var(--ivory-50);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 40px 28px;
+}
+
+.sf-couple__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.sf-couple__eyebrow-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.sf-couple__login-title {
+  margin: 14px 0 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.7rem, 6vw, 2.3rem);
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sf-couple__login-amp {
+  font-family: var(--font-script), cursive;
+  font-size: 1.2em;
+  color: var(--gold-deep);
+}
+
+.sf-couple__login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 26px;
+  text-align: left;
+}
+
+.sf-couple__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.sf-couple__input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--t-surface);
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.sf-couple__input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-wash);
+}
+
+.sf-couple__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 15px 24px;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--t-button-text);
+  background: var(--btn);
+  border: 1px solid var(--gold);
+  cursor: pointer;
+  transition: background 200ms ease, transform 200ms ease;
+}
+
+.sf-couple__cta:hover:not(:disabled) { background: var(--btn-hover); }
+.sf-couple__cta:active:not(:disabled) { transform: translateY(1px); }
+.sf-couple__cta:disabled { opacity: 0.7; cursor: default; }
+
+/* ── Header ── */
+
+.sf-couple__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 32px 20px 16px;
+}
+
+.sf-couple__title {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sf-couple__title-amp {
+  font-family: var(--font-script), cursive;
+  font-size: 1.1em;
+  color: var(--gold-deep);
+}
+
+.sf-couple__date {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+.sf-couple__logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.sf-couple__logout:hover {
+  background: var(--ivory-200);
+  border-color: var(--gold-line);
+}
+
+/* ── Akciona traka ── */
+
+.sf-couple__actionbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: var(--container);
+  margin: 0 auto 24px;
+  padding: 10px clamp(14px, 4vw, 20px);
+  background: color-mix(in srgb, var(--t-surface) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius-md);
+}
+
+.sf-couple__actionbar-count {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.sf-couple__actionbar-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sf-couple__action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--ivory-50);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, opacity 150ms ease;
+}
+
+.sf-couple__action-btn:hover:not(:disabled) {
+  background: var(--ivory-200);
+  border-color: var(--gold-line);
+}
+
+.sf-couple__action-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sf-couple__action-btn--danger {
+  color: var(--error);
+  border-color: color-mix(in srgb, var(--error) 35%, transparent);
+}
+
+.sf-couple__action-btn--danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+}
+
+/* ── Grid ── */
+
+.sf-couple__grid {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.sf-couple__grid-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: var(--container);
+  margin: 40px auto 0;
+  padding: 44px 24px;
+  text-align: center;
+  color: var(--ink-muted);
+  background: var(--ivory-50);
+  border: 1px dashed var(--gold-line);
+  border-radius: var(--radius-md);
+}
+
+/* Checkbox overlay preko pločice u selection modu. */
+.sf-couple__tile-check {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: color-mix(in srgb, var(--t-lightbox) 45%, transparent);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.sf-couple__tile-check.is-checked {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.sf-couple__tile-check.is-checked::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 11px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.sf-couple__tile-btn--selected {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ── Modal potvrde brisanja ── */
+
+.sf-couple__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+}
+
+.sf-couple__modal {
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  background: var(--ivory-50);
+  border-radius: var(--radius-md);
+  padding: 30px 26px;
+  box-shadow: var(--shadow-lg);
+}
+
+.sf-couple__modal-icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--error) 12%, transparent);
+  color: var(--error);
+}
+
+.sf-couple__modal h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.3rem;
+  color: var(--ink);
+}
+
+.sf-couple__modal p {
+  margin: 4px 0;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+.sf-couple__modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 560px) {
+  .sf-couple__header { flex-direction: column; }
+  .sf-couple__actionbar { justify-content: flex-start; }
+  .sf-couple__actionbar-buttons { width: 100%; }
+  .sf-couple__action-btn { flex: 1; justify-content: center; }
+}

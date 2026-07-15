@@ -4,12 +4,15 @@
    Reduced-motion fallback.
    ============================================================ */
 
-/* Blok važi i na .sf-gallery (ne samo root): tema se postavlja inline na
-   <main class="sf-gallery">, a var() u custom property-ju se razrješava na
-   elementu gdje je property DEKLARISAN — derivacije moraju biti deklarisane
-   na istom elementu koji nosi --t-* override, inače naslijede default boje. */
+/* Blok važi i na .sf-gallery i .sf-couple (ne samo root): tema se postavlja
+   inline na <main class="sf-gallery"> / <main class="sf-couple">, a var() u
+   custom property-ju se razrješava na elementu gdje je property DEKLARISAN —
+   derivacije moraju biti deklarisane na istom elementu koji nosi --t-*
+   override, inače naslijede default boje. .sf-couple (mladenci stranica,
+   couple.css) dijeli ovaj token blok da ne duplira derivacije. */
 .sf-gallery-root,
-.sf-gallery {
+.sf-gallery,
+.sf-couple {
   /* ── Sloj 1: tema (defaulti = Zlatna klasika; tema ih pregazi inline) ── */
   --t-bg: #fbf5ea;
   --t-bg-soft: #efdcbf;
