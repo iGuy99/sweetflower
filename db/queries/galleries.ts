@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { query, queryOne, execute } from '../connection'
+import type { GalleryTheme } from '@/lib/gallery-themes'
 
 export interface Gallery {
   id: number
@@ -10,6 +11,7 @@ export interface Gallery {
   is_public: boolean
   is_active: boolean
   created_at: string
+  theme: unknown // sirovo iz baze; parsira pozivalac preko parseThemeColumn
 }
 
 export interface GalleryMedia {
@@ -30,7 +32,7 @@ export interface GalleryMedia {
 
 export async function getGalleryBySlug(slug: string): Promise<Gallery | null> {
   return queryOne<Gallery>(
-    'SELECT id, slug, title, event_date, invitation_id, is_public, is_active, created_at FROM galleries WHERE slug = ? AND is_active = TRUE',
+    'SELECT id, slug, title, event_date, invitation_id, is_public, is_active, created_at, theme FROM galleries WHERE slug = ? AND is_active = TRUE',
     [slug]
   )
 }
@@ -51,7 +53,7 @@ export interface GalleryStats extends Gallery {
 export async function getAllGalleries(): Promise<GalleryStats[]> {
   return query<GalleryStats>(
     `SELECT g.id, g.slug, g.title, g.event_date, g.invitation_id, g.is_public,
-            g.is_active, g.created_at,
+            g.is_active, g.created_at, g.theme,
             COUNT(m.id) AS media_count,
             COALESCE(SUM(m.size_bytes), 0) AS total_bytes
      FROM galleries g
@@ -68,14 +70,23 @@ export interface CreateGalleryInput {
   invitationId: number | null
   isPublic: boolean
   couplePassword: string
+  theme?: GalleryTheme | null
 }
 
 export async function createGallery(input: CreateGalleryInput): Promise<number> {
   const hash = await bcrypt.hash(input.couplePassword, 10)
   const result = await execute(
-    `INSERT INTO galleries (slug, title, event_date, invitation_id, is_public, couple_password)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [input.slug, input.title, input.eventDate, input.invitationId, input.isPublic, hash]
+    `INSERT INTO galleries (slug, title, event_date, invitation_id, is_public, couple_password, theme)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      input.slug,
+      input.title,
+      input.eventDate,
+      input.invitationId,
+      input.isPublic,
+      hash,
+      input.theme ? JSON.stringify(input.theme) : null,
+    ]
   )
   return result.insertId
 }
@@ -88,7 +99,7 @@ export async function verifyCouplePassword(slug: string, password: string): Prom
 
 export async function getGalleryById(id: number): Promise<Gallery | null> {
   return queryOne<Gallery>(
-    'SELECT id, slug, title, event_date, invitation_id, is_public, is_active, created_at FROM galleries WHERE id = ?',
+    'SELECT id, slug, title, event_date, invitation_id, is_public, is_active, created_at, theme FROM galleries WHERE id = ?',
     [id]
   )
 }
@@ -98,6 +109,7 @@ export interface UpdateGalleryInput {
   eventDate?: string | null
   isPublic?: boolean
   couplePassword?: string // ako je zadano, resetuje lozinku mladenaca
+  theme?: GalleryTheme | null
 }
 
 export async function updateGallery(id: number, input: UpdateGalleryInput): Promise<void> {
@@ -119,6 +131,10 @@ export async function updateGallery(id: number, input: UpdateGalleryInput): Prom
   if (input.couplePassword) {
     fields.push('couple_password = ?')
     values.push(await bcrypt.hash(input.couplePassword, 10))
+  }
+  if (input.theme !== undefined) {
+    fields.push('theme = ?')
+    values.push(input.theme === null ? null : JSON.stringify(input.theme))
   }
 
   if (fields.length === 0) return
