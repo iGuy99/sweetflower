@@ -1,17 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Plus, LogOut, Copy, Check, Trash2, Link2, Eye, EyeOff,
-  Image as ImageIcon, HardDrive, AlertTriangle, X, Palette,
+  Image as ImageIcon, HardDrive, AlertTriangle, X, Palette, Users, KeyRound,
 } from 'lucide-react'
 import { slugify } from '@/lib/slug'
 import type { GalleryStats } from '@/db/queries/galleries'
+import type { AdminAccount } from '@/db/queries/admin'
 import { TEMPLATES, DEFAULT_TEMPLATE } from '@/lib/gallery-themes'
 import './admin.css'
 
 interface Props {
   initialGalleries: GalleryStats[]
+  isSuper: boolean
 }
 
 function formatBytes(bytes: number): string {
@@ -27,9 +29,10 @@ function formatDate(d: string | null): string {
   return new Date(d).toLocaleDateString('hr-HR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
-export default function GalleriesDashboard({ initialGalleries }: Props) {
+export default function GalleriesDashboard({ initialGalleries, isSuper }: Props) {
   const [galleries, setGalleries] = useState<GalleryStats[]>(initialGalleries)
   const [showCreate, setShowCreate] = useState(false)
+  const [showAdmins, setShowAdmins] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<GalleryStats | null>(null)
   const [deleteError, setDeleteError] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
@@ -96,6 +99,11 @@ export default function GalleriesDashboard({ initialGalleries }: Props) {
           <button className="gadmin-btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={18} /> Nova galerija
           </button>
+          {isSuper && (
+            <button className="gadmin-btn-ghost" onClick={() => setShowAdmins(true)}>
+              <Users size={18} /> Admini
+            </button>
+          )}
           <button className="gadmin-btn-ghost" onClick={handleLogout}>
             <LogOut size={18} /> Odjava
           </button>
@@ -158,6 +166,8 @@ export default function GalleriesDashboard({ initialGalleries }: Props) {
           onCreated={async () => { setShowCreate(false); await refresh() }}
         />
       )}
+
+      {showAdmins && <AdminsModal onClose={() => setShowAdmins(false)} />}
 
       {deleteTarget && (
         <div className="gadmin-overlay" onClick={closeDeleteModal}>
@@ -308,6 +318,271 @@ function CreateGalleryModal({ onClose, onCreated }: { onClose: () => void; onCre
 
           <button type="submit" className="gadmin-btn-primary" disabled={isLoading}>
             {isLoading ? 'Kreiram...' : <><Plus size={18} /> Kreiraj galeriju</>}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// --- Modal za upravljanje adminima (samo superadmin) ---
+
+const USERNAME_RE = /^[a-z0-9_.-]{3,50}$/
+
+function AdminsModal({ onClose }: { onClose: () => void }) {
+  const [admins, setAdmins] = useState<AdminAccount[] | null>(null)
+  const [loadError, setLoadError] = useState('')
+  const [resetId, setResetId] = useState<number | null>(null)
+  const [resetPassword, setResetPassword] = useState('')
+  const [resetConfirm, setResetConfirm] = useState('')
+  const [resetError, setResetError] = useState('')
+  const [isResetting, setIsResetting] = useState(false)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [rowError, setRowError] = useState('')
+
+  const [newUsername, setNewUsername] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [newConfirm, setNewConfirm] = useState('')
+  const [createError, setCreateError] = useState('')
+  const [isCreating, setIsCreating] = useState(false)
+
+  const load = async () => {
+    setLoadError('')
+    const res = await fetch('/api/admin/admins')
+    if (res.ok) {
+      const data = await res.json()
+      setAdmins(data.admins)
+    } else {
+      setLoadError('Greška pri učitavanju admina.')
+    }
+  }
+
+  useEffect(() => {
+    void load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const openReset = (id: number) => {
+    setResetId(id)
+    setResetPassword('')
+    setResetConfirm('')
+    setResetError('')
+  }
+
+  const submitReset = async (id: number) => {
+    if (resetPassword.length < 8) {
+      setResetError('Lozinka mora imati bar 8 znakova')
+      return
+    }
+    if (resetPassword !== resetConfirm) {
+      setResetError('Lozinke se ne podudaraju')
+      return
+    }
+    setIsResetting(true)
+    setResetError('')
+    try {
+      const res = await fetch(`/api/admin/admins/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: resetPassword }),
+      })
+      if (res.ok) {
+        setResetId(null)
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setResetError(data.error || 'Greška pri promjeni lozinke')
+      }
+    } catch {
+      setResetError('Greška u vezi. Pokušajte ponovo.')
+    } finally {
+      setIsResetting(false)
+    }
+  }
+
+  const handleDelete = async (admin: AdminAccount) => {
+    if (!window.confirm(`Obrisati admina „${admin.username}”?`)) return
+    setDeletingId(admin.id)
+    setRowError('')
+    try {
+      const res = await fetch(`/api/admin/admins/${admin.id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setAdmins((prev) => (prev ? prev.filter((a) => a.id !== admin.id) : prev))
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setRowError(data.error || 'Brisanje nije uspjelo.')
+      }
+    } catch {
+      setRowError('Greška u vezi. Pokušajte ponovo.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const username = newUsername.trim().toLowerCase()
+
+    if (!USERNAME_RE.test(username)) {
+      setCreateError('Korisničko ime: 3-50 znakova, mala slova/brojevi/_.-')
+      return
+    }
+    if (newPassword.length < 8) {
+      setCreateError('Lozinka mora imati bar 8 znakova')
+      return
+    }
+    if (newPassword !== newConfirm) {
+      setCreateError('Lozinke se ne podudaraju')
+      return
+    }
+
+    setIsCreating(true)
+    setCreateError('')
+    try {
+      const res = await fetch('/api/admin/admins', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password: newPassword }),
+      })
+      if (res.ok) {
+        setNewUsername('')
+        setNewPassword('')
+        setNewConfirm('')
+        await load()
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setCreateError(data.error || 'Greška pri kreiranju admina')
+      }
+    } catch {
+      setCreateError('Greška u vezi. Pokušajte ponovo.')
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  return (
+    <div className="gadmin-overlay" onClick={onClose}>
+      <div className="gadmin-modal gadmin-modal-wide" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="gadmin-modal-close" onClick={onClose} aria-label="Zatvori">
+          <X size={20} />
+        </button>
+        <h3>Admini</h3>
+        <p className="gadmin-hint">Upravljanje admin nalozima (dostupno samo superadminu).</p>
+
+        {loadError && <div className="gadmin-error">{loadError}</div>}
+        {rowError && <div className="gadmin-error">{rowError}</div>}
+
+        <ul className="gadmin-admins-list">
+          {admins === null && <li className="gadmin-hint">Učitavanje...</li>}
+          {admins?.map((admin) => (
+            <li key={admin.id} className="gadmin-admin-row">
+              <div className="gadmin-admin-row-head">
+                <span className="gadmin-admin-username">{admin.username}</span>
+                {admin.role === 'super' ? (
+                  <span className="gadmin-badge gadmin-badge-super">Superadmin</span>
+                ) : (
+                  <span className="gadmin-badge is-private">Admin</span>
+                )}
+                <span className="gadmin-admin-date">{formatDate(admin.created_at)}</span>
+              </div>
+
+              {admin.role !== 'super' && (
+                <div className="gadmin-admin-row-actions">
+                  <button
+                    type="button"
+                    className="gadmin-link-btn"
+                    onClick={() => openReset(admin.id)}
+                  >
+                    <KeyRound size={14} /> Reset lozinke
+                  </button>
+                  <button
+                    type="button"
+                    className="gadmin-btn-danger-ghost"
+                    onClick={() => handleDelete(admin)}
+                    disabled={deletingId === admin.id}
+                  >
+                    <Trash2 size={14} /> {deletingId === admin.id ? 'Brišem...' : 'Obriši'}
+                  </button>
+                </div>
+              )}
+
+              {resetId === admin.id && (
+                <div className="gadmin-admin-reset">
+                  <input
+                    className="gadmin-input"
+                    type="password"
+                    placeholder="Nova lozinka (min. 8 znakova)"
+                    value={resetPassword}
+                    onChange={(e) => setResetPassword(e.target.value)}
+                  />
+                  <input
+                    className="gadmin-input"
+                    type="password"
+                    placeholder="Potvrdi lozinku"
+                    value={resetConfirm}
+                    onChange={(e) => setResetConfirm(e.target.value)}
+                  />
+                  {resetError && <div className="gadmin-error">{resetError}</div>}
+                  <div className="gadmin-admin-reset-actions">
+                    <button
+                      type="button"
+                      className="gadmin-btn-ghost"
+                      onClick={() => setResetId(null)}
+                      disabled={isResetting}
+                    >
+                      Odustani
+                    </button>
+                    <button
+                      type="button"
+                      className="gadmin-btn-primary"
+                      onClick={() => submitReset(admin.id)}
+                      disabled={isResetting}
+                    >
+                      {isResetting ? 'Spremam...' : 'Potvrdi'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        <h3 className="gadmin-admins-subheading">Novi admin</h3>
+        <form className="gadmin-form" onSubmit={handleCreate}>
+          <label className="gadmin-label">Korisničko ime</label>
+          <input
+            className="gadmin-input"
+            value={newUsername}
+            onChange={(e) => setNewUsername(e.target.value)}
+            placeholder="npr. ana.admin"
+            autoCapitalize="none"
+            spellCheck={false}
+            required
+          />
+
+          <label className="gadmin-label">Lozinka</label>
+          <input
+            className="gadmin-input"
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="min. 8 znakova"
+            required
+          />
+
+          <label className="gadmin-label">Potvrdi lozinku</label>
+          <input
+            className="gadmin-input"
+            type="password"
+            value={newConfirm}
+            onChange={(e) => setNewConfirm(e.target.value)}
+            placeholder="ponovi lozinku"
+            required
+          />
+
+          {createError && <div className="gadmin-error">{createError}</div>}
+
+          <button type="submit" className="gadmin-btn-primary" disabled={isCreating}>
+            {isCreating ? 'Kreiram...' : <><Plus size={18} /> Dodaj admina</>}
           </button>
         </form>
       </div>

@@ -15,7 +15,7 @@ export default async function AdminPage() {
     const payload = await verifyToken(token)
     if (payload && payload.type === 'admin') {
       const galleries = await getAllGalleries()
-      return <GalleriesDashboard initialGalleries={galleries} />
+      return <GalleriesDashboard initialGalleries={galleries} isSuper={payload.role === 'super'} />
     }
   }
 

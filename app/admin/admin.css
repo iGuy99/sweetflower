@@ -418,6 +418,81 @@
   margin-top: 22px;
 }
 
+/* --- Admini modal --- */
+
+.gadmin-modal-wide {
+  max-width: 560px;
+}
+
+.gadmin-badge-super {
+  background: rgba(184, 134, 63, 0.16);
+  color: #96692b;
+}
+
+.gadmin-admins-list {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.gadmin-admin-row {
+  border: 1px solid var(--g-line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: #fbf9f6;
+}
+
+.gadmin-admin-row-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gadmin-admin-username {
+  font-weight: 700;
+  font-size: 0.94rem;
+}
+
+.gadmin-admin-date {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--g-muted);
+}
+
+.gadmin-admin-row-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.gadmin-admin-reset {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--g-line);
+}
+
+.gadmin-admin-reset-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.gadmin-admins-subheading {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--g-line);
+  font-size: 1.1rem;
+}
+
 @media (max-width: 520px) {
   .gadmin-topbar { align-items: stretch; }
   .gadmin-topbar-actions { width: 100%; }
