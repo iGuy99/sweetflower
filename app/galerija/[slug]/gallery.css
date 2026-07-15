@@ -437,6 +437,16 @@
 
 .sf-gallery__tile {
   margin: 0;
+  /* Odgodi style/layout/paint rad za pločice van ekrana (Safari od iOS 18;
+     na starijim verzijama no-op). Veličina pločice dolazi iz grida +
+     aspect-ratio, ne iz sadržaja — 0 0 je bezbjedno. */
+  content-visibility: auto;
+  contain-intrinsic-size: 0 0;
+}
+
+/* Nevidljivi okidač za infinite scroll (učitavanje sljedeće stranice grida). */
+.sf-gallery__load-sentinel {
+  height: 1px;
 }
 
 /* Demo pločica u preview modu (editor) — bez interakcije, samo ilustruje grid. */

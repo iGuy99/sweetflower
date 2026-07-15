@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  memo,
   useCallback,
   useEffect,
   useRef,
@@ -101,6 +102,8 @@ export default function GalleryClient({
   const [media, setMedia] = useState<MediaItem[]>([])
   const [mediaLoading, setMediaLoading] = useState(isPublic)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  // Kursor za sljedeću stranicu grida (null = sve učitano).
+  const [nextCursor, setNextCursor] = useState<number | null>(null)
   // Tema uživo — mijenja se SAMO u preview modu (postMessage iz editora).
   const [liveTheme, setLiveTheme] = useState<ResolvedTheme>(theme)
 
@@ -152,22 +155,68 @@ export default function GalleryClient({
     )
   }, [])
 
-  const refreshMedia = useCallback(async () => {
-    if (!isPublic) return
+  // Paginirano učitavanje: prva stranica na mount (postavlja i kursor),
+  // refresh poslije uploada samo MERGA novu prvu stranicu preko postojećih
+  // (ne dira kursor — starije učitane stranice ostaju u gridu).
+  const refreshMedia = useCallback(
+    async (opts?: { initial?: boolean }) => {
+      if (!isPublic) return
+      try {
+        const res = await fetch(
+          `/api/galerija/${encodeURIComponent(slug)}/media`,
+          { cache: 'no-store' }
+        )
+        if (!res.ok) return
+        const data = (await res.json()) as {
+          media?: MediaItem[]
+          nextCursor?: number | null
+        }
+        const page = Array.isArray(data.media) ? data.media : []
+        if (opts?.initial) {
+          setMedia(page)
+          setNextCursor(data.nextCursor ?? null)
+        } else {
+          setMedia((prev) => {
+            const seen = new Set(page.map((m) => m.id))
+            return [...page, ...prev.filter((m) => !seen.has(m.id))]
+          })
+        }
+      } catch {
+        // Tiho — grid je sekundaran; upload i dalje radi.
+      } finally {
+        setMediaLoading(false)
+      }
+    },
+    [isPublic, slug]
+  )
+
+  // Sljedeća stranica na scroll-near-bottom; ref čuva od duplih zahtjeva.
+  const loadingMoreRef = useRef(false)
+  const loadMore = useCallback(async () => {
+    if (loadingMoreRef.current || nextCursor === null) return
+    loadingMoreRef.current = true
     try {
       const res = await fetch(
-        `/api/galerija/${encodeURIComponent(slug)}/media`,
+        `/api/galerija/${encodeURIComponent(slug)}/media?cursor=${nextCursor}`,
         { cache: 'no-store' }
       )
       if (!res.ok) return
-      const data = (await res.json()) as { media?: MediaItem[] }
-      setMedia(Array.isArray(data.media) ? data.media : [])
+      const data = (await res.json()) as {
+        media?: MediaItem[]
+        nextCursor?: number | null
+      }
+      const page = Array.isArray(data.media) ? data.media : []
+      setMedia((prev) => {
+        const seen = new Set(prev.map((m) => m.id))
+        return [...prev, ...page.filter((m) => !seen.has(m.id))]
+      })
+      setNextCursor(data.nextCursor ?? null)
     } catch {
-      // Tiho — grid je sekundaran; upload i dalje radi.
+      // Tiho — sentinel će ponovo okinuti pri sljedećem ulasku u viewport.
     } finally {
-      setMediaLoading(false)
+      loadingMoreRef.current = false
     }
-  }, [isPublic, slug])
+  }, [slug, nextCursor])
 
   const runUpload = useCallback(
     async (id: string) => {
@@ -222,7 +271,7 @@ export default function GalleryClient({
   }, [pump])
 
   useEffect(() => {
-    void refreshMedia()
+    void refreshMedia({ initial: true })
   }, [refreshMedia])
 
   // Preview mod: editor šalje temu preko postMessage sa istog origina —
@@ -486,6 +535,8 @@ export default function GalleryClient({
             loading={mediaLoading}
             onOpen={setLightboxIndex}
             isPreview={isPreview}
+            hasMore={nextCursor !== null}
+            onLoadMore={loadMore}
           />
         ) : (
           <section className="sf-gallery__private">
@@ -697,9 +748,37 @@ interface MediaGalleryProps {
   loading: boolean
   onOpen: (index: number) => void
   isPreview: boolean
+  hasMore: boolean
+  onLoadMore: () => void
 }
 
-function MediaGallery({ media, loading, onOpen, isPreview }: MediaGalleryProps) {
+// memo: bez ovoga se cijeli grid (200+ pločica) re-renderuje na SVAKI
+// upload-progress tick (desetine puta u sekundi) iako su propsi nepromijenjeni.
+const MediaGallery = memo(function MediaGallery({
+  media,
+  loading,
+  onOpen,
+  isPreview,
+  hasMore,
+  onLoadMore,
+}: MediaGalleryProps) {
+  // Infinite scroll: nevidljivi sentinel ispod grida okida sljedeću stranicu
+  // kad uđe u prošireni viewport (rootMargin — počni prije nego korisnik stigne).
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    if (!hasMore) return
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) onLoadMore()
+      },
+      { rootMargin: '600px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasMore, onLoadMore])
+
   return (
     <section className="sf-gallery__grid-section" aria-label="Galerija uspomena">
       <div className="sf-gallery__grid-header">
@@ -717,7 +796,13 @@ function MediaGallery({ media, loading, onOpen, isPreview }: MediaGalleryProps) 
       </div>
 
       {loading ? (
-        <p className="sf-gallery__grid-empty">Učitavanje…</p>
+        // Skeleton grid (iste demo pločice kao u preview modu) — korisnik odmah
+        // vidi strukturu umjesto praznog teksta dok se lista učitava.
+        <ul className="sf-gallery__grid" aria-busy="true" aria-label="Učitavanje galerije">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <li key={i} className="sf-gallery__tile sf-gallery__tile--demo" />
+          ))}
+        </ul>
       ) : media.length === 0 && isPreview ? (
         // Preview mod (editor): prazna/privatna galerija — pokaži demo grid
         // umjesto praznog stanja da se vidi kako izgled sjeda uz stvarne fajlove.
@@ -771,6 +856,9 @@ function MediaGallery({ media, loading, onOpen, isPreview }: MediaGalleryProps) 
           ))}
         </ul>
       )}
+      {hasMore && !loading && (
+        <div ref={sentinelRef} className="sf-gallery__load-sentinel" aria-hidden="true" />
+      )}
     </section>
   )
-}
+})

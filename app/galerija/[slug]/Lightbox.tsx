@@ -58,6 +58,9 @@ export default function Lightbox({ media, index, onClose, onNavigate }: Lightbox
       const neighbor = media[(index + dir + total) % total]
       if (neighbor && neighbor.mediaType === 'image') {
         const img = new window.Image()
+        // Nizak prioritet: preload ne smije konkurisati mreži/dekodiranju
+        // trenutno prikazane slike (posebno na mobilnoj vezi).
+        img.setAttribute('fetchpriority', 'low')
         img.src = neighbor.url
       }
     }
@@ -171,6 +174,8 @@ export default function Lightbox({ media, index, onClose, onNavigate }: Lightbox
               alt={
                 item.uploaderName ? `Uspomena — ${item.uploaderName}` : 'Uspomena'
               }
+              decoding="async"
+              fetchPriority="high"
               onLoad={() => setLoadedUrl(item.url)}
             />
           </div>

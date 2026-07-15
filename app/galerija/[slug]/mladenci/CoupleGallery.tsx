@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   LogOut,
   Download,
@@ -54,6 +54,9 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  // Kursor za sljedeću stranicu grida (null = sve učitano).
+  const [nextCursor, setNextCursor] = useState<number | null>(null)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   const formattedDate = formatEventDate(eventDate)
   const coupleNames = splitCoupleNames(title)
@@ -66,8 +69,9 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
         signal,
       })
       if (!res.ok) return
-      const data = (await res.json()) as { media?: MediaItem[] }
+      const data = (await res.json()) as { media?: MediaItem[]; nextCursor?: number | null }
       setMedia(Array.isArray(data.media) ? data.media : [])
+      setNextCursor(data.nextCursor ?? null)
     } catch {
       // Tiho — grid ostaje prazan/star, korisnik može ručno osvježiti stranicu.
     } finally {
@@ -80,6 +84,45 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
     void refreshMedia(controller.signal)
     return () => controller.abort()
   }, [refreshMedia])
+
+  // Sljedeća stranica na scroll-near-bottom (infinite scroll).
+  const loadingMoreRef = useRef(false)
+  const loadMore = useCallback(async () => {
+    if (loadingMoreRef.current || nextCursor === null) return
+    loadingMoreRef.current = true
+    try {
+      const res = await fetch(
+        `/api/galerija/${encodeURIComponent(slug)}/mladenci/media?cursor=${nextCursor}`,
+        { cache: 'no-store' }
+      )
+      if (!res.ok) return
+      const data = (await res.json()) as { media?: MediaItem[]; nextCursor?: number | null }
+      const page = Array.isArray(data.media) ? data.media : []
+      setMedia((prev) => {
+        const seen = new Set(prev.map((m) => m.id))
+        return [...prev, ...page.filter((m) => !seen.has(m.id))]
+      })
+      setNextCursor(data.nextCursor ?? null)
+    } catch {
+      // Tiho — sentinel će ponovo okinuti pri sljedećem ulasku u viewport.
+    } finally {
+      loadingMoreRef.current = false
+    }
+  }, [slug, nextCursor])
+
+  useEffect(() => {
+    if (nextCursor === null) return
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) void loadMore()
+      },
+      { rootMargin: '600px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [nextCursor, loadMore])
 
   // Escape zatvara confirm modal (dialog semantika).
   useEffect(() => {
@@ -279,7 +322,12 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
       </div>
 
       {loading ? (
-        <p className="sf-couple__grid-empty">Učitavanje...</p>
+        // Skeleton grid — ista struktura kao pravi grid, bez CLS-a.
+        <ul className="sf-gallery__grid sf-couple__grid" aria-busy="true" aria-label="Učitavanje galerije">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <li key={i} className="sf-gallery__tile sf-gallery__tile--demo" />
+          ))}
+        </ul>
       ) : media.length === 0 ? (
         <div className="sf-couple__grid-empty">
           <Images size={28} aria-hidden="true" />
@@ -332,6 +380,9 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
             )
           })}
         </ul>
+      )}
+      {nextCursor !== null && !loading && (
+        <div ref={sentinelRef} className="sf-gallery__load-sentinel" aria-hidden="true" />
       )}
 
       {confirmDelete && (

@@ -163,6 +163,29 @@ export async function getReadyMedia(galleryId: number): Promise<GalleryMedia[]> 
   )
 }
 
+// Keyset paginacija za grid: stranica najnovijih medija, opciono prije zadanog
+// id-a (kursor). ORDER BY id DESC prati redoslijed uploada (AUTO_INCREMENT) i
+// daje stabilan kursor — radi ispravno i ako je red kursora u međuvremenu obrisan.
+export async function getReadyMediaPage(
+  galleryId: number,
+  limit: number,
+  beforeId?: number
+): Promise<GalleryMedia[]> {
+  // LIMIT ide interpolisan (saniran integer) — mysql2 placeholderi za LIMIT
+  // znaju biti nepouzdani; vrijednost je ionako server-side konstanta.
+  const capped = Math.min(Math.max(1, Math.floor(limit)), 200)
+  if (beforeId !== undefined) {
+    return query<GalleryMedia>(
+      `SELECT * FROM gallery_media WHERE gallery_id = ? AND status = 'ready' AND id < ? ORDER BY id DESC LIMIT ${capped}`,
+      [galleryId, beforeId]
+    )
+  }
+  return query<GalleryMedia>(
+    `SELECT * FROM gallery_media WHERE gallery_id = ? AND status = 'ready' ORDER BY id DESC LIMIT ${capped}`,
+    [galleryId]
+  )
+}
+
 export interface CreateMediaInput {
   galleryId: number
   objectKey: string
