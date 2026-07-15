@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getGalleryBySlug, getReadyMedia } from '@/db/queries/galleries'
+import { getCoupleOrAdminSession } from '@/lib/couple-auth'
 import { toMediaPayload } from '@/lib/media-payload'
 import { rateLimit, clientIp } from '@/lib/rate-limit'
 
@@ -12,7 +13,12 @@ export async function GET(
   try {
     const { slug } = await params
 
-    const rl = rateLimit(`media-list:${clientIp(req)}`, 120, 60 * 1000)
+    const session = await getCoupleOrAdminSession(req, slug)
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const rl = rateLimit(`mladenci-media:${clientIp(req)}`, 120, 60 * 1000)
     if (!rl.allowed) {
       return NextResponse.json(
         { error: 'Previše zahtjeva' },
@@ -24,19 +30,14 @@ export async function GET(
     if (!gallery) {
       return NextResponse.json({ error: 'Galerija nije pronađena' }, { status: 404 })
     }
-    if (!gallery.is_public) {
-      return NextResponse.json(
-        { error: 'Ova galerija nije javna' },
-        { status: 403 }
-      )
-    }
 
+    // Mladenci vide SVE spremne medije, bez obzira na is_public.
     const rows = await getReadyMedia(gallery.id)
     const media = await toMediaPayload(rows)
 
     return NextResponse.json({ media })
   } catch (error) {
-    console.error('Media list error:', error)
+    console.error('Mladenci media list error:', error)
     return NextResponse.json({ error: 'Greška pri učitavanju galerije' }, { status: 500 })
   }
 }

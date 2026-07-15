@@ -9,15 +9,11 @@ import {
 } from 'react'
 import {
   ImagePlus,
-  X,
   RefreshCw,
   CircleAlert,
   Images,
   Play,
-  ChevronLeft,
-  ChevronRight,
   Heart,
-  Download,
 } from 'lucide-react'
 import {
   uploadFile,
@@ -26,6 +22,7 @@ import {
 } from '@/lib/upload/multipart-uploader'
 import type { ResolvedTheme } from '@/lib/gallery-themes'
 import { themeToStyle, validateTheme, resolveTheme } from '@/lib/gallery-themes'
+import Lightbox, { type MediaItem } from './Lightbox'
 
 // --- Tipovi ---
 
@@ -48,17 +45,6 @@ interface UploadItem {
   error?: string
 }
 
-interface MediaItem {
-  id: number
-  mediaType: 'image' | 'video'
-  thumbUrl: string | null
-  url: string
-  downloadUrl: string
-  uploaderName: string | null
-  fileName: string
-  createdAt: string
-}
-
 /** Faza objedinjenog overlay-a. */
 type OverlayPhase = 'idle' | 'active' | 'success' | 'error'
 
@@ -66,7 +52,6 @@ type OverlayPhase = 'idle' | 'active' | 'success' | 'error'
 
 const MAX_FILE_CONCURRENCY = 2
 const SUCCESS_AUTOCLOSE_MS = 2200
-const SWIPE_THRESHOLD_PX = 50
 const RING_RADIUS = 54
 const RING_CIRC = 2 * Math.PI * RING_RADIUS
 
@@ -297,11 +282,16 @@ export default function GalleryClient({
     return () => clearTimeout(t)
   }, [overlayPhase, overlayDismissed])
 
-  // Zaključaj scroll pozadine dok je lightbox ili overlay otvoren (iOS-safe:
-  // position:fixed na body-ju spriječava i "rubber-band" skrolanje ispod).
+  // Zaključaj scroll pozadine dok je overlay otvoren (iOS-safe: position:fixed
+  // na body-ju spriječava i "rubber-band" skrolanje ispod). Lightbox ima
+  // VLASTITI mount/unmount scroll-lock (Lightbox.tsx) — ovaj effect pokriva
+  // samo overlay slučaj.
   useEffect(() => {
-    const locked = lightboxIndex !== null || overlayVisible
-    if (!locked) return
+    if (!overlayVisible) return
+    // No-op siguran: ako je body već fiksiran (npr. lock iz Lightboxa), ne
+    // dupliraj lock — teoretski slučaj (lightbox otvoren dok je overlay
+    // aktivan) koji se u praksi ne dešava.
+    if (document.body.style.position === 'fixed') return
     const scrollY = window.scrollY
     const body = document.body
     const prev = {
@@ -321,7 +311,7 @@ export default function GalleryClient({
       body.style.overflow = prev.overflow
       window.scrollTo(0, scrollY)
     }
-  }, [lightboxIndex, overlayVisible])
+  }, [overlayVisible])
 
   const handleFilesSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -782,171 +772,5 @@ function MediaGallery({ media, loading, onOpen, isPreview }: MediaGalleryProps) 
         </ul>
       )}
     </section>
-  )
-}
-
-// --- Lightbox ---
-
-interface LightboxProps {
-  media: MediaItem[]
-  index: number
-  onClose: () => void
-  onNavigate: (dir: number) => void
-}
-
-function Lightbox({ media, index, onClose, onNavigate }: LightboxProps) {
-  const item = media[index]
-  const total = media.length
-  const hasSiblings = total > 1
-  // Blur-up: izvedeno iz URL-a koji se učitao (bez reset-efekta na navigaciju).
-  const [loadedUrl, setLoadedUrl] = useState<string | null>(null)
-  const fullLoaded = loadedUrl === item.url
-  const touchStartX = useRef<number | null>(null)
-
-  // Tipke: strelice + Escape.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      else if (e.key === 'ArrowLeft') onNavigate(-1)
-      else if (e.key === 'ArrowRight') onNavigate(1)
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [onClose, onNavigate])
-
-  // Preload susjednih punih slika (prethodna + sljedeća) radi brže navigacije.
-  useEffect(() => {
-    if (total === 0) return
-    for (const dir of [-1, 1]) {
-      const neighbor = media[(index + dir + total) % total]
-      if (neighbor && neighbor.mediaType === 'image') {
-        const img = new window.Image()
-        img.src = neighbor.url
-      }
-    }
-  }, [index, media, total])
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.changedTouches[0]?.clientX ?? null
-  }
-
-  const onTouchEnd = (e: React.TouchEvent) => {
-    const start = touchStartX.current
-    touchStartX.current = null
-    if (start === null || !hasSiblings) return
-    const dx = (e.changedTouches[0]?.clientX ?? start) - start
-    if (Math.abs(dx) < SWIPE_THRESHOLD_PX) return
-    onNavigate(dx < 0 ? 1 : -1)
-  }
-
-  return (
-    <div
-      className="sf-lightbox"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Pregled uspomene"
-      onClick={onClose}
-    >
-      <button
-        type="button"
-        className="sf-lightbox__close"
-        aria-label="Zatvori"
-        onClick={onClose}
-      >
-        <X size={22} aria-hidden="true" />
-      </button>
-
-      {hasSiblings && (
-        <button
-          type="button"
-          className="sf-lightbox__nav sf-lightbox__nav--prev"
-          aria-label="Prethodna"
-          onClick={(e) => {
-            e.stopPropagation()
-            onNavigate(-1)
-          }}
-        >
-          <ChevronLeft size={26} aria-hidden="true" />
-        </button>
-      )}
-
-      <div
-        className="sf-lightbox__stage"
-        onClick={(e) => e.stopPropagation()}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
-        {item.mediaType === 'video' ? (
-          <video
-            className="sf-lightbox__media"
-            src={item.url}
-            controls
-            autoPlay
-            playsInline
-          />
-        ) : (
-          <div className="sf-lightbox__frame">
-            {item.thumbUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                className={`sf-lightbox__blur${
-                  fullLoaded ? ' is-hidden' : ''
-                }`}
-                src={item.thumbUrl}
-                alt=""
-                aria-hidden="true"
-              />
-            )}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className={`sf-lightbox__media sf-lightbox__full${
-                fullLoaded ? ' is-loaded' : ''
-              }`}
-              src={item.url}
-              alt={
-                item.uploaderName ? `Uspomena — ${item.uploaderName}` : 'Uspomena'
-              }
-              onLoad={() => setLoadedUrl(item.url)}
-            />
-          </div>
-        )}
-
-        <div className="sf-lightbox__meta">
-          <a
-            className="sf-lightbox__download"
-            href={item.downloadUrl}
-            download={item.fileName}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Download size={16} aria-hidden="true" />
-            Preuzmi
-          </a>
-          <div className="sf-lightbox__meta-text">
-            {item.uploaderName && (
-              <p className="sf-lightbox__caption">{item.uploaderName}</p>
-            )}
-            {hasSiblings && (
-              <p className="sf-lightbox__counter">
-                {index + 1} / {total}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {hasSiblings && (
-        <button
-          type="button"
-          className="sf-lightbox__nav sf-lightbox__nav--next"
-          aria-label="Sljedeća"
-          onClick={(e) => {
-            e.stopPropagation()
-            onNavigate(1)
-          }}
-        >
-          <ChevronRight size={26} aria-hidden="true" />
-        </button>
-      )}
-    </div>
   )
 }
