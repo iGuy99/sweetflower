@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/admin-auth'
 import { getAllGalleries, createGallery, getGalleryBySlug } from '@/db/queries/galleries'
 import { isValidSlug } from '@/lib/slug'
+import { TEMPLATES, DEFAULT_TEMPLATE } from '@/lib/gallery-themes'
 
 export async function GET(req: NextRequest) {
   const session = await getAdminSession(req)
@@ -48,7 +49,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Galerija s ovim slugom već postoji' }, { status: 409 })
     }
 
-    const id = await createGallery({ slug, title, eventDate, invitationId, isPublic, couplePassword })
+    const template = typeof body.template === 'string' ? body.template : DEFAULT_TEMPLATE
+    if (!(template in TEMPLATES)) {
+      return NextResponse.json({ error: 'Nepoznat template' }, { status: 400 })
+    }
+
+    const id = await createGallery({
+      slug,
+      title,
+      eventDate,
+      invitationId,
+      isPublic,
+      couplePassword,
+      theme: template === DEFAULT_TEMPLATE ? null : { template },
+    })
     return NextResponse.json({ success: true, id, slug }, { status: 201 })
   } catch (error) {
     console.error('Create gallery error:', error)

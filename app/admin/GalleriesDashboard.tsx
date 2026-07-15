@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import {
   Plus, LogOut, Copy, Check, Trash2, Link2, Eye, EyeOff,
-  Image as ImageIcon, HardDrive, AlertTriangle, X,
+  Image as ImageIcon, HardDrive, AlertTriangle, X, Palette,
 } from 'lucide-react'
 import { slugify } from '@/lib/slug'
 import type { GalleryStats } from '@/db/queries/galleries'
+import { TEMPLATES, DEFAULT_TEMPLATE } from '@/lib/gallery-themes'
 import './admin.css'
 
 interface Props {
@@ -135,6 +136,9 @@ export default function GalleriesDashboard({ initialGalleries }: Props) {
                   <button className="gadmin-link-btn" onClick={() => copyLink(`couple-${g.id}`, coupleUrl)}>
                     {copiedKey === `couple-${g.id}` ? <><Check size={15} /> Kopirano</> : <><Copy size={15} /> Link za mladence</>}
                   </button>
+                  <a className="gadmin-link-btn" href={`/admin/galerije/${g.id}/izgled`}>
+                    <Palette size={15} /> Izgled
+                  </a>
                 </div>
 
                 <div className="gadmin-card-foot">
@@ -190,6 +194,7 @@ function CreateGalleryModal({ onClose, onCreated }: { onClose: () => void; onCre
   const [eventDate, setEventDate] = useState('')
   const [isPublic, setIsPublic] = useState(false)
   const [couplePassword, setCouplePassword] = useState('')
+  const [template, setTemplate] = useState(DEFAULT_TEMPLATE)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -212,6 +217,7 @@ function CreateGalleryModal({ onClose, onCreated }: { onClose: () => void; onCre
         eventDate: eventDate || null,
         isPublic,
         couplePassword,
+        template,
       }),
     })
 
@@ -277,6 +283,25 @@ function CreateGalleryModal({ onClose, onCreated }: { onClose: () => void; onCre
             <input type="checkbox" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
             <span>Javna galerija (gosti vide sve slike)</span>
           </label>
+
+          <label className="gadmin-label">Izgled</label>
+          <div className="gadmin-template-grid">
+            {Object.entries(TEMPLATES).map(([id, t]) => (
+              <button
+                key={id}
+                type="button"
+                className={`gadmin-template-card${template === id ? ' is-selected' : ''}`}
+                onClick={() => setTemplate(id)}
+              >
+                <span className="gadmin-template-swatches">
+                  <span className="gadmin-template-swatch" style={{ background: t.colors.bg }} />
+                  <span className="gadmin-template-swatch" style={{ background: t.colors.accent }} />
+                  <span className="gadmin-template-swatch" style={{ background: t.colors.text }} />
+                </span>
+                <span className="gadmin-template-name">{t.name}</span>
+              </button>
+            ))}
+          </div>
 
           {error && <div className="gadmin-error">{error}</div>}
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/admin-auth'
 import { getGalleryById, updateGallery, deleteGallery } from '@/db/queries/galleries'
 import { deletePrefix } from '@/lib/s3'
+import { validateTheme, type GalleryTheme } from '@/lib/gallery-themes'
 
 export async function PATCH(
   req: NextRequest,
@@ -21,11 +22,25 @@ export async function PATCH(
 
   try {
     const body = await req.json()
+
+    let theme: GalleryTheme | null | undefined = undefined
+    if ('theme' in body) {
+      if (body.theme === null) {
+        theme = null // reset na default
+      } else {
+        theme = validateTheme(body.theme)
+        if (!theme) {
+          return NextResponse.json({ error: 'Nevažeća tema' }, { status: 400 })
+        }
+      }
+    }
+
     await updateGallery(galleryId, {
       title: body.title !== undefined ? String(body.title).trim() : undefined,
       eventDate: body.eventDate !== undefined ? (body.eventDate ? String(body.eventDate) : null) : undefined,
       isPublic: body.isPublic !== undefined ? body.isPublic === true : undefined,
       couplePassword: body.couplePassword ? String(body.couplePassword) : undefined,
+      theme,
     })
     return NextResponse.json({ success: true })
   } catch (error) {
