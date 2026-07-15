@@ -34,6 +34,7 @@ export default function GalleriesDashboard({ initialGalleries, isSuper }: Props)
   const [showCreate, setShowCreate] = useState(false)
   const [showAdmins, setShowAdmins] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<GalleryStats | null>(null)
+  const [passwordTarget, setPasswordTarget] = useState<GalleryStats | null>(null)
   const [deleteError, setDeleteError] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
@@ -147,6 +148,9 @@ export default function GalleriesDashboard({ initialGalleries, isSuper }: Props)
                   <a className="gadmin-link-btn" href={`/admin/galerije/${g.id}/izgled`}>
                     <Palette size={15} /> Izgled
                   </a>
+                  <button className="gadmin-link-btn" onClick={() => setPasswordTarget(g)}>
+                    <KeyRound size={15} /> Šifra mladenaca
+                  </button>
                 </div>
 
                 <div className="gadmin-card-foot">
@@ -168,6 +172,13 @@ export default function GalleriesDashboard({ initialGalleries, isSuper }: Props)
       )}
 
       {showAdmins && <AdminsModal onClose={() => setShowAdmins(false)} />}
+
+      {passwordTarget && (
+        <CouplePasswordModal
+          gallery={passwordTarget}
+          onClose={() => setPasswordTarget(null)}
+        />
+      )}
 
       {deleteTarget && (
         <div className="gadmin-overlay" onClick={closeDeleteModal}>
@@ -191,6 +202,123 @@ export default function GalleriesDashboard({ initialGalleries, isSuper }: Props)
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// --- Modal za reset šifre mladenaca ---
+
+function CouplePasswordModal({
+  gallery,
+  onClose,
+}: {
+  gallery: GalleryStats
+  onClose: () => void
+}) {
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [error, setError] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [isDone, setIsDone] = useState(false)
+
+  // Escape zatvara modal (dialog semantika).
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (password.length < 8) {
+      setError('Šifra mora imati bar 8 znakova')
+      return
+    }
+    if (password !== confirm) {
+      setError('Šifre se ne podudaraju')
+      return
+    }
+    setIsSaving(true)
+    setError('')
+    try {
+      const res = await fetch(`/api/admin/galleries/${gallery.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ couplePassword: password }),
+      })
+      if (res.ok) {
+        setIsDone(true)
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error || 'Greška pri promjeni šifre')
+      }
+    } catch {
+      setError('Greška u vezi. Pokušajte ponovo.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  return (
+    <div className="gadmin-overlay" onClick={onClose}>
+      <div
+        className="gadmin-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="gadmin-couple-pass-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button type="button" className="gadmin-modal-close" onClick={onClose} aria-label="Zatvori">
+          <X size={20} />
+        </button>
+        <h3 id="gadmin-couple-pass-title">Šifra mladenaca — {gallery.title}</h3>
+
+        {isDone ? (
+          <>
+            <p className="gadmin-hint">
+              Šifra je promijenjena. Stara šifra više ne važi za novu prijavu;
+              mladenci koji su već prijavljeni ostaju prijavljeni do isteka sesije (30 dana).
+            </p>
+            <div className="gadmin-modal-actions">
+              <button type="button" className="gadmin-btn-primary" onClick={onClose}>
+                U redu
+              </button>
+            </div>
+          </>
+        ) : (
+          <form className="gadmin-form" onSubmit={handleSubmit}>
+            <label className="gadmin-label" htmlFor="gadmin-couple-pass">Nova šifra</label>
+            <input
+              id="gadmin-couple-pass"
+              className="gadmin-input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="min. 8 znakova"
+              required
+            />
+
+            <label className="gadmin-label" htmlFor="gadmin-couple-pass-confirm">Potvrdi šifru</label>
+            <input
+              id="gadmin-couple-pass-confirm"
+              className="gadmin-input"
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              placeholder="ponovi šifru"
+              required
+            />
+
+            {error && <div className="gadmin-error">{error}</div>}
+
+            <button type="submit" className="gadmin-btn-primary" disabled={isSaving}>
+              <KeyRound size={16} /> {isSaving ? 'Spremam...' : 'Promijeni šifru'}
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   )
 }

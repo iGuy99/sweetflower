@@ -23,6 +23,14 @@ export async function PATCH(
   try {
     const body = await req.json()
 
+    // Ista validacija dužine kao pri kreiranju (POST) — reset ne smije biti slabiji.
+    if (body.couplePassword && String(body.couplePassword).length < 8) {
+      return NextResponse.json(
+        { error: 'Šifra za mladence mora imati bar 8 znakova' },
+        { status: 400 }
+      )
+    }
+
     let theme: GalleryTheme | null | undefined = undefined
     if ('theme' in body) {
       if (body.theme === null) {
