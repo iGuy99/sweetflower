@@ -24,6 +24,8 @@ import {
   UploadAbortedError,
   UploadError,
 } from '@/lib/upload/multipart-uploader'
+import type { ResolvedTheme } from '@/lib/gallery-themes'
+import { themeToStyle } from '@/lib/gallery-themes'
 
 // --- Tipovi ---
 
@@ -32,6 +34,8 @@ interface GalleryClientProps {
   title: string
   eventDate: string | null
   isPublic: boolean
+  theme: ResolvedTheme
+  isPreview: boolean
 }
 
 type UploadStatus = 'queued' | 'uploading' | 'done' | 'error'
@@ -104,12 +108,16 @@ export default function GalleryClient({
   title,
   eventDate,
   isPublic,
+  theme,
+  isPreview,
 }: GalleryClientProps) {
   const [uploaderName, setUploaderName] = useState('')
   const [items, setItems] = useState<UploadItem[]>([])
   const [media, setMedia] = useState<MediaItem[]>([])
   const [mediaLoading, setMediaLoading] = useState(isPublic)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  // Tema uživo — mijenja se SAMO u preview modu (postMessage iz editora).
+  const [liveTheme, setLiveTheme] = useState<ResolvedTheme>(theme)
 
   // Objedinjeni overlay: faza (izvedena iz stanja uploada) + ručno zatvaranje.
   const [overlayPhase, setOverlayPhase] = useState<OverlayPhase>('idle')
@@ -231,6 +239,19 @@ export default function GalleryClient({
   useEffect(() => {
     void refreshMedia()
   }, [refreshMedia])
+
+  // Preview mod: editor šalje temu preko postMessage sa istog origina —
+  // primijeni je uživo bez refresha stranice.
+  useEffect(() => {
+    if (!isPreview) return
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return
+      if (e.data?.type !== 'sf-theme-preview') return
+      setLiveTheme(e.data.payload as ResolvedTheme)
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  }, [isPreview])
 
   // Na unmount: zaustavi queue i otkaži sve tekuće uploade (da se ne nastave
   // u pozadini na stranici koju je gost napustio).
@@ -373,14 +394,20 @@ export default function GalleryClient({
   const closeLightbox = useCallback(() => setLightboxIndex(null), [])
 
   return (
-    <main className="sf-gallery">
+    <main
+      className="sf-gallery"
+      style={themeToStyle(liveTheme) as React.CSSProperties}
+      data-frame={liveTheme.decor.viewportFrame ? undefined : 'off'}
+      data-ornaments={liveTheme.decor.ornaments ? undefined : 'off'}
+      data-script-amp={liveTheme.decor.scriptAmp ? undefined : 'off'}
+    >
       <div className="sf-gallery__atmosphere" aria-hidden="true" />
 
       <div className="sf-gallery__container">
         <header className="sf-gallery__hero">
           <span className="sf-gallery__eyebrow sf-gallery__fade sf-gallery__fade--1">
             <span className="sf-gallery__eyebrow-dot" aria-hidden="true" />
-            Podijelite uspomene
+            {liveTheme.texts.tagline}
           </span>
 
           {coupleNames ? (
@@ -410,8 +437,7 @@ export default function GalleryClient({
             </span>
           )}
           <p className="sf-gallery__lede sf-gallery__fade sf-gallery__fade--3">
-            Pomozite mladencima da sačuvaju svaki trenutak — dodajte slike i
-            video zapise koje ste snimili.
+            {liveTheme.texts.welcome}
           </p>
         </header>
 
@@ -449,15 +475,16 @@ export default function GalleryClient({
             onClick={openPicker}
           >
             <ImagePlus size={20} aria-hidden="true" />
-            Dodajte vaše slike i video
+            {liveTheme.texts.buttonLabel}
           </button>
         </section>
 
-        {isPublic ? (
+        {isPublic || isPreview ? (
           <MediaGallery
             media={media}
             loading={mediaLoading}
             onOpen={setLightboxIndex}
+            isPreview={isPreview}
           />
         ) : (
           <section className="sf-gallery__private">
@@ -668,9 +695,10 @@ interface MediaGalleryProps {
   media: MediaItem[]
   loading: boolean
   onOpen: (index: number) => void
+  isPreview: boolean
 }
 
-function MediaGallery({ media, loading, onOpen }: MediaGalleryProps) {
+function MediaGallery({ media, loading, onOpen, isPreview }: MediaGalleryProps) {
   return (
     <section className="sf-gallery__grid-section" aria-label="Galerija uspomena">
       <div className="sf-gallery__grid-header">
@@ -689,6 +717,14 @@ function MediaGallery({ media, loading, onOpen }: MediaGalleryProps) {
 
       {loading ? (
         <p className="sf-gallery__grid-empty">Učitavanje…</p>
+      ) : media.length === 0 && isPreview ? (
+        // Preview mod (editor): prazna/privatna galerija — pokaži demo grid
+        // umjesto praznog stanja da se vidi kako izgled sjeda uz stvarne fajlove.
+        <ul className="sf-gallery__grid">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <li key={i} className="sf-gallery__tile sf-gallery__tile--demo" />
+          ))}
+        </ul>
       ) : media.length === 0 ? (
         <div className="sf-gallery__grid-empty">
           <Images size={28} aria-hidden="true" />

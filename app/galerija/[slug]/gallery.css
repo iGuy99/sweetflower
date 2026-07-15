@@ -5,33 +5,46 @@
    ============================================================ */
 
 .sf-gallery-root {
-  --ivory-50: #fffdf9;
-  --ivory-100: #fbf5ea;
-  --ivory-200: #f6ead9;
-  --ivory-300: #efdcbf;
+  /* ── Sloj 1: tema (defaulti = Zlatna klasika; tema ih pregazi inline) ── */
+  --t-bg: #fbf5ea;
+  --t-bg-soft: #efdcbf;
+  --t-surface: #fffdf9;
+  --t-accent: #b8863f;
+  --t-accent-deep: #96692b;
+  --t-text: #241a12;
+  --t-text-soft: #4a3c30;
+  --t-muted: #8a7a68;
+  --t-button: #2f2018;
+  --t-button-text: #fffdf9;
+  --t-lightbox: #120c08;
+  --font-display: var(--f-cormorant);
+  --font-body: var(--f-jakarta);
+  --font-script: var(--f-parisienne);
 
-  --cream: #fdf9f2;
-
-  --gold: #b8863f;
-  --gold-deep: #96692b;
-  --gold-line: rgba(184, 134, 63, 0.35);
-  --gold-wash: rgba(184, 134, 63, 0.1);
-
-  --ink: #241a12;
-  --ink-soft: #4a3c30;
-  --ink-muted: #8a7a68;
-
-  --line: rgba(91, 58, 30, 0.14);
-  --shadow-sm: 0 2px 10px rgba(58, 38, 20, 0.07);
-  --shadow-md: 0 10px 28px rgba(58, 38, 20, 0.1);
-  --shadow-lg: 0 22px 56px rgba(30, 20, 10, 0.28);
+  /* ── Sloj 2: derivacije (stara imena zadržana da se ostatak fajla minimalno mijenja) ── */
+  --ivory-50: var(--t-surface);
+  --ivory-100: var(--t-bg);
+  --ivory-200: color-mix(in srgb, var(--t-bg) 55%, var(--t-bg-soft));
+  --ivory-300: var(--t-bg-soft);
+  --cream: color-mix(in srgb, var(--t-surface) 60%, var(--t-bg));
+  --gold: var(--t-accent);
+  --gold-deep: var(--t-accent-deep);
+  --gold-line: color-mix(in srgb, var(--t-accent) 35%, transparent);
+  --gold-wash: color-mix(in srgb, var(--t-accent) 10%, transparent);
+  --ink: var(--t-text);
+  --ink-soft: var(--t-text-soft);
+  --ink-muted: var(--t-muted);
+  --line: color-mix(in srgb, var(--t-accent-deep) 14%, transparent);
+  --shadow-sm: 0 2px 10px color-mix(in srgb, var(--t-lightbox) 7%, transparent);
+  --shadow-md: 0 10px 28px color-mix(in srgb, var(--t-lightbox) 10%, transparent);
+  --shadow-lg: 0 22px 56px color-mix(in srgb, var(--t-lightbox) 28%, transparent);
+  --btn: var(--t-button);
+  --btn-hover: color-mix(in srgb, var(--t-button) 88%, #000);
+  /* radius, success, error, ease, container — NE mijenjati */
 
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 4px;
-
-  --btn: #2f2018;
-  --btn-hover: #241811;
 
   --success: #7a8a5c;
   --error: #a24632;
@@ -51,6 +64,7 @@
   min-height: 100vh;
   overflow: hidden;
   isolation: isolate;
+  background: var(--t-bg); /* pokrije i slučaj kad root div ne dobije override */
 }
 
 /* Suptilna ivory/gold atmosfera. */
@@ -327,7 +341,7 @@
 
 .sf-gallery__cta:hover {
   background: var(--btn-hover);
-  box-shadow: 0 6px 22px rgba(184, 134, 63, 0.28);
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--t-accent) 28%, transparent);
 }
 
 .sf-gallery__cta:active {
@@ -417,6 +431,14 @@
   margin: 0;
 }
 
+/* Demo pločica u preview modu (editor) — bez interakcije, samo ilustruje grid. */
+.sf-gallery__tile--demo {
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--ivory-200), var(--ivory-300));
+}
+
 .sf-gallery__tile-btn {
   position: relative;
   display: block;
@@ -468,7 +490,8 @@
   width: 30px;
   height: 30px;
   color: #fff;
-  background: rgba(36, 26, 18, 0.6);
+  /* --t-lightbox je uvijek tamna u svim templateima — garantuje kontrast bez obzira na temu. */
+  background: color-mix(in srgb, var(--t-lightbox) 60%, transparent);
   border-radius: 50%;
   backdrop-filter: blur(2px);
 }
@@ -486,8 +509,8 @@
   padding: 24px;
   background: radial-gradient(
       120% 90% at 50% 0%,
-      rgba(255, 253, 249, 0.97),
-      rgba(251, 245, 234, 0.97)
+      color-mix(in srgb, var(--ivory-50) 97%, transparent),
+      color-mix(in srgb, var(--ivory-100) 97%, transparent)
     );
   backdrop-filter: blur(6px);
   animation: sf-overlay-in 240ms var(--ease) both;
@@ -621,7 +644,7 @@
   height: 88px;
   border-radius: 50%;
   color: var(--error);
-  background: rgba(162, 70, 50, 0.1);
+  background: color-mix(in srgb, var(--error) 10%, transparent);
 }
 
 /* ── Dugmad / linkovi ── */
@@ -664,7 +687,7 @@
 }
 
 .sf-overlay__btn--ghost:hover {
-  background: rgba(36, 26, 18, 0.05);
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
   border-color: var(--ink-muted);
 }
 
@@ -707,7 +730,7 @@
   padding:
     max(14px, env(safe-area-inset-top)) 14px
     calc(env(safe-area-inset-bottom) + 14px);
-  background: rgba(18, 12, 8, 0.98); /* skoro neprozirno — pozadina ne proviruje */
+  background: color-mix(in srgb, var(--t-lightbox) 98%, transparent); /* skoro neprozirno — pozadina ne proviruje */
   backdrop-filter: blur(6px);
   animation: sf-overlay-in 220ms ease both;
 }
@@ -730,7 +753,7 @@
 }
 
 .sf-lightbox__close:hover {
-  background: rgba(184, 134, 63, 0.2);
+  background: color-mix(in srgb, var(--t-accent) 20%, transparent);
   border-color: var(--gold);
 }
 
@@ -759,7 +782,7 @@
 }
 
 .sf-lightbox__nav:hover {
-  background: rgba(184, 134, 63, 0.2);
+  background: color-mix(in srgb, var(--t-accent) 20%, transparent);
   border-color: var(--gold);
 }
 
@@ -858,7 +881,7 @@
 }
 
 .sf-lightbox__download:hover {
-  background: rgba(184, 134, 63, 0.25);
+  background: color-mix(in srgb, var(--t-accent) 25%, transparent);
   border-color: var(--gold);
 }
 
@@ -948,4 +971,12 @@
   .sf-gallery__tile-btn:hover {
     transform: none;
   }
+}
+
+/* ── Dekoracije (tema ih može isključiti) ── */
+.sf-gallery[data-frame='off']::after { display: none; }
+.sf-gallery[data-ornaments='off'] .sf-gallery__ornament { display: none; }
+.sf-gallery[data-script-amp='off'] .sf-gallery__title-amp {
+  font-family: var(--font-display), serif; /* običan serif '&' umjesto script */
+  font-size: 0.6em; /* prilagodi da vizuelno sjedne uz imena */
 }
