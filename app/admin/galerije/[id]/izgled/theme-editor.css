@@ -1,0 +1,392 @@
+/* SweetFlower — Editor izgleda galerije (isti dizajn-jezik kao admin.css) */
+
+.te-page {
+  --te-bg: #f7f4ef;
+  --te-surface: #ffffff;
+  --te-ink: #2b2622;
+  --te-muted: #8a8178;
+  --te-line: #e7e0d6;
+  --te-accent: #b08968;
+  --te-accent-ink: #7a5c42;
+  --te-danger: #c0492f;
+  --te-radius: 16px;
+  --te-shadow: 0 6px 24px rgba(60, 46, 33, 0.08);
+  min-height: 100vh;
+  background: var(--te-bg);
+  color: var(--te-ink);
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+/* --- Header --- */
+
+.te-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px clamp(16px, 4vw, 40px);
+  border-bottom: 1px solid var(--te-line);
+  background: var(--te-surface);
+  flex-wrap: wrap;
+}
+
+.te-header-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.te-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--te-ink);
+  text-decoration: none;
+  border: 1px solid var(--te-line);
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+
+.te-back:hover { background: #efe9e0; }
+
+.te-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--te-accent-ink);
+  margin: 0;
+}
+
+.te-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 4px 0 0;
+}
+
+.te-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.te-error {
+  font-size: 0.82rem;
+  color: var(--te-danger);
+  font-weight: 600;
+}
+
+.te-btn-primary,
+.te-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s;
+}
+
+.te-btn-primary {
+  background: var(--te-accent);
+  color: #fff;
+}
+.te-btn-primary:hover:not(:disabled) { background: var(--te-accent-ink); transform: translateY(-1px); }
+.te-btn-primary:disabled { opacity: 0.6; cursor: default; }
+
+.te-btn-ghost {
+  background: transparent;
+  border-color: var(--te-line);
+  color: var(--te-ink);
+}
+.te-btn-ghost:hover:not(:disabled) { background: #efe9e0; }
+.te-btn-ghost:disabled { opacity: 0.6; cursor: default; }
+
+/* --- Layout --- */
+
+.te-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 0;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .te-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Kontrole (lijeva kolona) --- */
+
+.te-controls {
+  padding: clamp(16px, 3vw, 28px);
+  border-right: 1px solid var(--te-line);
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+@media (max-width: 1024px) {
+  .te-controls {
+    border-right: none;
+    border-bottom: 1px solid var(--te-line);
+  }
+}
+
+.te-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.te-section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Template kartice */
+
+.te-template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+}
+
+.te-template-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 6px;
+  background: #fbf9f6;
+  border: 1.5px solid var(--te-line);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, transform 0.12s;
+}
+
+.te-template-card:hover { transform: translateY(-1px); }
+
+.te-template-card.is-selected {
+  border-color: var(--te-accent);
+  box-shadow: 0 0 0 3px rgba(176, 137, 104, 0.15);
+}
+
+.te-template-swatches {
+  display: flex;
+  gap: 3px;
+}
+
+.te-template-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(43, 38, 34, 0.12);
+}
+
+.te-template-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--te-ink);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Boje */
+
+.te-color-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--te-line);
+}
+
+.te-color-group-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--te-muted);
+  margin: 0;
+}
+
+.te-color-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.te-color-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.te-color-label {
+  font-size: 0.85rem;
+  color: var(--te-ink);
+}
+
+.te-color-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.te-color-input input[type='color'] {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--te-line);
+  border-radius: 8px;
+  cursor: pointer;
+  background: none;
+}
+
+.te-color-hex {
+  font-size: 0.78rem;
+  color: var(--te-muted);
+  font-family: monospace;
+  min-width: 62px;
+}
+
+/* Polja / select / textarea */
+
+.te-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.te-field-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--te-muted);
+}
+
+.te-input,
+.te-textarea,
+.te-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--te-line);
+  border-radius: 10px;
+  background: #fbf9f6;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--te-ink);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.te-input:focus,
+.te-textarea:focus,
+.te-select:focus {
+  outline: none;
+  border-color: var(--te-accent);
+  box-shadow: 0 0 0 3px rgba(176, 137, 104, 0.15);
+}
+
+.te-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Dekoracije (toggle) */
+
+.te-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.te-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--te-accent);
+}
+
+/* --- Preview (desna kolona) --- */
+
+.te-preview-col {
+  padding: clamp(16px, 3vw, 28px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.te-preview-toolbar {
+  display: flex;
+  gap: 8px;
+}
+
+.te-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--te-muted);
+  background: var(--te-surface);
+  border: 1px solid var(--te-line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.te-view-btn:hover { background: #efe9e0; }
+
+.te-view-btn.is-active {
+  color: #fff;
+  background: var(--te-accent);
+  border-color: var(--te-accent);
+}
+
+.te-preview {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.te-preview iframe {
+  border: none;
+  background: #fff;
+}
+
+.te-preview--phone iframe {
+  width: 390px;
+  height: 740px;
+  max-width: 100%;
+  border-radius: 40px;
+  border: 10px solid #1a1a1a;
+  box-shadow: var(--te-shadow);
+}
+
+.te-preview--desktop iframe {
+  width: 100%;
+  max-width: 1100px;
+  height: 740px;
+  border-radius: 12px;
+  border: 1px solid var(--te-line);
+  box-shadow: var(--te-shadow);
+}
