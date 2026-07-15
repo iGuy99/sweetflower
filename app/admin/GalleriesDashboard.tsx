@@ -284,13 +284,14 @@ function CreateGalleryModal({ onClose, onCreated }: { onClose: () => void; onCre
             <span>Javna galerija (gosti vide sve slike)</span>
           </label>
 
-          <label className="gadmin-label">Izgled</label>
-          <div className="gadmin-template-grid">
+          <span className="gadmin-label" id="gadmin-template-label">Izgled</span>
+          <div className="gadmin-template-grid" role="group" aria-labelledby="gadmin-template-label">
             {Object.entries(TEMPLATES).map(([id, t]) => (
               <button
                 key={id}
                 type="button"
                 className={`gadmin-template-card${template === id ? ' is-selected' : ''}`}
+                aria-pressed={template === id}
                 onClick={() => setTemplate(id)}
               >
                 <span className="gadmin-template-swatches">

@@ -229,6 +229,7 @@ export default function ThemeEditor({ galleryId, slug, title, initialTheme }: Pr
                   key={id}
                   type="button"
                   className={`te-template-card${theme.template === id ? ' is-selected' : ''}`}
+                  aria-pressed={theme.template === id}
                   onClick={() => selectTemplate(id)}
                 >
                   <span className="te-template-swatches">

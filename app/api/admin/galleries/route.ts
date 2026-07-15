@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     }
 
     const template = typeof body.template === 'string' ? body.template : DEFAULT_TEMPLATE
-    if (!(template in TEMPLATES)) {
+    if (!Object.hasOwn(TEMPLATES, template)) {
       return NextResponse.json({ error: 'Nepoznat template' }, { status: 400 })
     }
 

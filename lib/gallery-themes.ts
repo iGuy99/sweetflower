@@ -196,7 +196,9 @@ const CONTROL_CHARS_RE = /[\x00-\x1f\x7f]/g
  */
 export function resolveTheme(theme: GalleryTheme | null | undefined): ResolvedTheme {
   const templateId =
-    theme?.template && theme.template in TEMPLATES ? theme.template : DEFAULT_TEMPLATE
+    theme?.template && Object.hasOwn(TEMPLATES, theme.template)
+      ? theme.template
+      : DEFAULT_TEMPLATE
   const base = TEMPLATES[templateId]
 
   return {
@@ -307,7 +309,9 @@ export function validateTheme(input: unknown): GalleryTheme | null {
   if (typeof input !== 'object' || input === null) return null
   const src = input as Record<string, unknown>
 
-  if (typeof src.template !== 'string' || !(src.template in TEMPLATES)) {
+  // Object.hasOwn (ne `in`): `in` matchuje i naslijeđene ključeve
+  // poput 'constructor'/'toString', što bi propustilo nevažeći template.
+  if (typeof src.template !== 'string' || !Object.hasOwn(TEMPLATES, src.template)) {
     return null
   }
 

@@ -25,7 +25,7 @@ import {
   UploadError,
 } from '@/lib/upload/multipart-uploader'
 import type { ResolvedTheme } from '@/lib/gallery-themes'
-import { themeToStyle } from '@/lib/gallery-themes'
+import { themeToStyle, validateTheme, resolveTheme } from '@/lib/gallery-themes'
 
 // --- Tipovi ---
 
@@ -246,8 +246,14 @@ export default function GalleryClient({
     if (!isPreview) return
     const onMessage = (e: MessageEvent) => {
       if (e.origin !== window.location.origin) return
+      // Editor je roditelj iframe-a — poruke iz drugih izvora se odbijaju.
+      if (e.source !== window.parent) return
       if (e.data?.type !== 'sf-theme-preview') return
-      setLiveTheme(e.data.payload as ResolvedTheme)
+      // Revalidacija payload-a: i preview putanja mora proći kroz validateTheme,
+      // da nevalidirane vrijednosti nikad ne uđu u inline style.
+      const validated = validateTheme(e.data.payload)
+      if (!validated) return
+      setLiveTheme(resolveTheme(validated))
     }
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)

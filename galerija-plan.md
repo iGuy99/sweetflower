@@ -205,6 +205,188 @@ Rate limiting na upload endpointima (jednostavan in-memory limiter po IP-u).
 5. **Polish + deploy** — OG meta tagovi, testiranje na iOS/Android (HEIC!),
    bucket CORS, produkcijski env, smoke test na produkciji.
 
+## Custom teme galerija (plan dogovoren 2026-07-14, interview 2026-07-14)
+
+> Status: ✅ IZGRAĐENO LOKALNO (2026-07-14, Sonnet agent po
+> `galerija-teme-sonnet-plan.md`; tsc + build zeleni; theme=NULL putanja
+> potvrđeno identična starom izgledu — 11/11 hex vrijednosti).
+> Review (security-reviewer + react-reviewer, paralelno): bez CRITICAL;
+> POPRAVLJENO — HIGH: postMessage payload revalidacija (validateTheme +
+> resolveTheme + e.source check u preview listeneru); MEDIUM: `Object.hasOwn`
+> umjesto `in TEMPLATES` (3 mjesta); MEDIUM a11y: aria-pressed na template
+> kartice + role="group" umjesto orphaned label u create modalu.
+> ODGOĐENO (nije blocker): demo grid vidljiv i gostima na privatnoj galeriji
+> uz ?preview=1 (bez curenja medija — samo kozmetika); nepotrebni useCallback
+> wrapperi u ThemeEditor; teorijska iframe onLoad race (fix: sf-theme-ready
+> handshake ako se ikad pojavi "prva promjena se ne vidi").
+> PREOSTAJE: migracija 005 NIJE primijenjena (ni lokalno — Docker ugašen — ni
+> na produkciji!); manuelna browser verifikacija (editor, tamna tema,
+> dekoracije); NIJE pushano.
+
+Cilj: admin može po galeriji mijenjati boje, fontove, tekstove i dekoracije,
+birati između 5 gotovih templatea, uz **live preview** na posebnoj stranici za
+uređivanje. Layout ostaje isti.
+
+### Odluke iz interviewa (2026-07-14)
+
+| Pitanje | Odluka |
+|---|---|
+| Obim editora | Boje + fontovi + **tekstovi** (tagline, dobrodošlica, dugme) + **dekoracije on/off**. Bez monograma/slike (kasnije po potrebi). |
+| Kontrola boja | **Proširena paleta (~10 tokena)** — ne samo 5 semantičkih |
+| Ko edituje | **Samo admin** — mladenci vide gotovo |
+| Save flow | **Odmah live** — Sačuvaj = vidljivo gostima (preview u editoru prije snimanja) |
+| Templatei | Zlatna klasika (default), Blush ruža, Botanika, Noćna elegancija, **Pastelno zelena** (novi, umjesto ranije predložene Moderne minimal) |
+| Preview | **Telefon-okvir + desktop toggle** (QR publika je mobilna) |
+| Izbor templatea | Već **u create modalu** (swatch picker), fino podešavanje u editoru |
+
+### 1. Model podataka — migracija `005_gallery_theme.sql`
+
+```sql
+ALTER TABLE galleries ADD COLUMN theme JSON DEFAULT NULL;
+```
+
+`NULL` = default tema (trenutna "Zlatna klasika"). Oblik JSON-a:
+
+```json
+{
+  "template": "zlatna-klasika",
+  "colors": {
+    "bg": "#fbf5ea",         // pozadina stranice
+    "bgSoft": "#f6ead9",     // atmosfera/gradijent vrha
+    "surface": "#fffdf9",    // kartice, upload panel
+    "accent": "#b8863f",     // zlatna — okvir, ornamenti, akcenti
+    "accentDeep": "#96692b", // hover/tamnija varijanta akcenta
+    "text": "#241a12",       // glavni tekst
+    "textSoft": "#4a3c30",   // podnaslovi
+    "muted": "#8a7a68",      // sekundarni/meta tekst
+    "button": "#2f2018",     // upload dugme
+    "lightbox": "#120c08"    // lightbox/overlay pozadina
+  },
+  "fonts": { "display": "cormorant", "body": "jakarta", "script": "parisienne" },
+  "texts": {
+    "tagline": "Galerija uspomena",          // podnaslov heroa (max 120)
+    "welcome": "Podijelite vaše slike...",   // poruka dobrodošlice (max 400)
+    "buttonLabel": "Dodajte vaše slike"      // tekst upload dugmeta (max 60)
+  },
+  "decor": {
+    "viewportFrame": true,   // zlatni okvir oko viewporta
+    "ornaments": true,       // linija+romb razdjelnici
+    "scriptAmp": true        // script '&' u imenima
+  }
+}
+```
+
+`template` je polazna tačka; sve ostalo su overridi preko templatea. Nijanse
+koje nisu u paleti (linije, washes, sjene, success/error hover) se i dalje
+**deriviraju** iz ovih 10 tokena preko `color-mix()`.
+
+### 2. Refaktor tokena u `gallery.css` (preduslov)
+
+Trenutno su derivirane boje hardkodirane (`rgba(184,134,63,0.35)` itd.) pa
+promjena `--gold` ne bi propagirala. Refaktor na semantičke tokene +
+`color-mix()` derivacije:
+
+- Editabilni (10): `--t-bg`, `--t-bg-soft`, `--t-surface`, `--t-accent`,
+  `--t-accent-deep`, `--t-text`, `--t-text-soft`, `--t-muted`, `--t-button`,
+  `--t-lightbox`
+- Derivirani: `--gold-line: color-mix(in srgb, var(--t-accent) 35%, transparent)`,
+  `--btn-hover` = mix button↔black, sjene iz text boje s alfa, itd.
+- Dark-safe: `--t-lightbox` i sjene su dio palete, da tamni template radi.
+- Dekoracije: `viewportFrame`/`ornaments`/`scriptAmp` se gase data-atributima
+  na `.sf-gallery-root` (npr. `[data-no-frame] .sf-gallery::after { display:none }`).
+
+`color-mix()` je podržan u svim browserima od 2023 — OK za našu publiku.
+
+### 3. Fontovi — kurirana lista preko next/font
+
+`next/font` mora biti statički deklarisan, pa se **cijela kurirana lista**
+deklariše u `app/galerija/layout.tsx`, ali sa `preload: false` za sve osim
+defaulta — browser skida font fajl tek kad se stvarno koristi (lazy @font-face).
+Tema bira mapiranje font-id → `--font-display/--font-body/--font-script`.
+
+| Slot | Opcije (default prvi) |
+|---|---|
+| Display | Cormorant Garamond, Playfair Display, Marcellus, EB Garamond |
+| Body | Plus Jakarta Sans, Inter, Lora, Montserrat |
+| Script (&) | Parisienne, Great Vibes, Dancing Script |
+
+### 4. Templatei (5)
+
+1. **Zlatna klasika** — trenutni izgled (ivory + gold + espresso) = default
+2. **Blush ruža** — blush/rose pozadina, bordo akcenat, Playfair
+3. **Botanika** — krem + dublji sage/maslinasti akcenat, EB Garamond
+4. **Noćna elegancija** — midnight tamna pozadina + zlato (dark luxury)
+5. **Pastelno zelena** — svijetla pastel menta/eukaliptus pozadina, mekši
+   zeleni akcenat, prozračno (razlika od Botanike: pastelna i svjetlija,
+   Botanika je zasićenija/zemljanija)
+
+Template = imenovani theme JSON preset u `lib/gallery-themes.ts` (jedan izvor
+istine, koristi ga i editor i server render). "Moderna minimal" izbačena iz
+prve verzije (lako se doda kasnije kao novi preset).
+
+### 5. Primjena na stranici galerije
+
+- `app/galerija/[slug]/page.tsx` (server) čita `gallery.theme`, **validira**
+  (hex regex, font-id allowlist — zaštita od CSS injectiona) i renderuje
+  inline `style` sa CSS varijablama + data-atribute za dekoracije na
+  `.sf-gallery-root` wrapperu. Tekstovi (tagline/welcome/buttonLabel) idu kao
+  props u GalleryClient — React ih escapuje, čuvaju se kao čisti tekst.
+- Bez FOUC-a: boje dolaze u SSR HTML-u, ništa se ne "prešaltava" klijentski.
+
+### 6. Editor stranica — `/admin/galerije/[id]/izgled`
+
+Posebna stranica iza admin autha. Layout: lijevo kontrole, desno live preview.
+
+- **Template picker**: 5 kartica sa mini swatch-ovima (bg/accent/text + naziv fonta)
+- **Boje**: 10 pickera (`<input type="color">` + hex polje), grupisano
+  (Pozadine / Akcenat / Tekst / Dugme / Lightbox)
+- **Fontovi**: 3 dropdowna, svaka opcija renderovana u svom fontu
+- **Tekstovi**: 3 polja (tagline ≤120, welcome ≤400, buttonLabel ≤60) sa
+  placeholderom = default vrijednost
+- **Dekoracije**: 3 toggla (okvir viewporta, ornamenti, script '&')
+- **Preview**: `<iframe src="/galerija/[slug]?preview=1">` u **telefon-okviru**
+  (~390px, zaobljeni okvir) + toggle na desktop širinu. Prava stranica, pravi
+  podaci. Editor šalje theme preko `postMessage` (uz origin check), preview
+  live postavlja CSS varijable/atribute/tekstove.
+- Preview mode: ako je galerija prazna ili privatna (media API vrati 403),
+  prikazati demo pločice da se vidi kako grid izgleda.
+- Akcije: **Sačuvaj** (PATCH — odmah live), **Vrati na template** (briše
+  override-e), **Vrati na default** (theme = NULL). Upozorenje na napuštanje
+  stranice s nesnimljenim promjenama.
+
+### 7. API + dashboard + create modal
+
+- `PATCH /api/admin/galleries/[id]` proširiti sa `theme` poljem — striktna
+  validacija: template ∈ enum, boje `^#[0-9a-f]{6}$`, fontovi ∈ allowlist,
+  tekstovi length caps, decor booleani.
+- `GalleriesDashboard`: dugme "Izgled" na svakoj kartici → editor stranica.
+- **Create modal**: red template swatch kartica (default: Zlatna klasika) —
+  POST prima `theme.template`, bez ostalih override-a pri kreiranju.
+
+### Faze izrade
+
+- **A — Infrastruktura** (~pola dana): token refaktor gallery.css (10 tokena +
+  derivacije + decor data-atributi), migracija 005, `lib/gallery-themes.ts`
+  (5 preseta + validacija), server-side primjena boja/fontova/tekstova/dekora.
+  Provjerljivo ručnim upisom theme JSON-a u bazu.
+- **B — Editor** (~dan i po): editor stranica (telefon-okvir preview +
+  postMessage live update, boje/fontovi/tekstovi/dekoracije), PATCH API,
+  dugme "Izgled" u dashboardu, template picker u create modalu,
+  5 templatea finalizirano.
+- **C — Polish** (~pola dana): QA svih 5 templatea na mobitelu (posebno
+  Noćna elegancija — lightbox/overlay/sjene), responsive editor, upozorenje
+  na nesnimljene promjene; kasnije: mladenci stranica (Faza 4) nasljeđuje temu.
+
+Nezavisno od Faze 4 (mladenci) — može prije ili poslije.
+
+### Rizici specifični za teme
+
+- **Tamni template** traži šire pokrivanje tokena (sjene, lightbox, overlay) —
+  zato je u fazi A obavezan "dark-safe" refaktor, ne samo zamjena 5 boja.
+- **CSS injection**: theme vrijednosti idu u inline style → server-side stroga
+  validacija formata, nikad slobodan string.
+- **Font perf**: `preload: false` drži budžet — skida se samo ono što tema koristi.
+
 ## Rizici / stvari za provjeriti tokom izrade
 
 - **Next 16 breaking changes** — čitati `node_modules/next/dist/docs/` prije svake faze.
