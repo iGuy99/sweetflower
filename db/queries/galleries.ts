@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { query, queryOne, execute } from '../connection'
+import { DUMMY_HASH } from './admin'
 import type { GalleryTheme } from '@/lib/gallery-themes'
 
 export interface Gallery {
@@ -93,7 +94,12 @@ export async function createGallery(input: CreateGalleryInput): Promise<number> 
 
 export async function verifyCouplePassword(slug: string, password: string): Promise<boolean> {
   const gallery = await getGalleryWithSecret(slug)
-  if (!gallery) return false
+  if (!gallery) {
+    // Dummy compare: bez ovoga bi brz odgovor otkrivao da slug ne postoji
+    // (timing enumeracija) — isti guard kao u verifyAdmin.
+    await bcrypt.compare(password, DUMMY_HASH)
+    return false
+  }
   return bcrypt.compare(password, gallery.couple_password)
 }
 
@@ -195,6 +201,26 @@ export async function markMediaReady(id: number): Promise<void> {
 
 export async function getMediaById(id: number): Promise<GalleryMedia | null> {
   return queryOne<GalleryMedia>('SELECT * FROM gallery_media WHERE id = ?', [id])
+}
+
+// Mediji po id-jevima, ograničeni na jednu galeriju — vlasništvo se
+// provjerava u SQL-u (jedan upit umjesto N pojedinačnih).
+export async function getMediaByIdsForGallery(
+  galleryId: number,
+  ids: number[]
+): Promise<GalleryMedia[]> {
+  if (ids.length === 0) return []
+  const placeholders = ids.map(() => '?').join(',')
+  return query<GalleryMedia>(
+    `SELECT * FROM gallery_media WHERE gallery_id = ? AND id IN (${placeholders})`,
+    [galleryId, ...ids]
+  )
+}
+
+export async function deleteMediaRows(ids: number[]): Promise<void> {
+  if (ids.length === 0) return
+  const placeholders = ids.map(() => '?').join(',')
+  await execute(`DELETE FROM gallery_media WHERE id IN (${placeholders})`, ids)
 }
 
 export async function deleteMediaRow(id: number): Promise<void> {

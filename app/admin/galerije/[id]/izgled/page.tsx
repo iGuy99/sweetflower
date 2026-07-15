@@ -2,8 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { cookies } from 'next/headers'
 import { redirect, notFound } from 'next/navigation'
-import { verifyToken } from '@/lib/auth'
-import { ADMIN_COOKIE } from '@/lib/admin-auth'
+import { ADMIN_COOKIE, validateAdminToken } from '@/lib/admin-auth'
 import { getGalleryById } from '@/db/queries/galleries'
 import { parseThemeColumn } from '@/lib/gallery-themes'
 import ThemeEditor from './ThemeEditor'
@@ -16,9 +15,8 @@ export default async function GalleryThemeEditorPage({
   const cookieStore = await cookies()
   const token = cookieStore.get(ADMIN_COOKIE)?.value
 
-  if (!token) redirect('/admin')
-  const payload = await verifyToken(token)
-  if (!payload || payload.type !== 'admin') redirect('/admin')
+  const payload = await validateAdminToken(token)
+  if (!payload) redirect('/admin')
 
   const { id } = await params
   const galleryId = Number(id)

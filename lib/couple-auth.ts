@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { verifyToken } from './auth'
-import { ADMIN_COOKIE } from './admin-auth'
+import { getAdminSession } from './admin-auth'
 
 export const COUPLE_COOKIE = 'couple-token'
 
@@ -18,12 +18,10 @@ export async function getCoupleOrAdminSession(
     }
   }
 
-  const adminToken = req.cookies.get(ADMIN_COOKIE)?.value
-  if (adminToken) {
-    const payload = await verifyToken(adminToken)
-    if (payload && payload.type === 'admin') {
-      return 'admin'
-    }
+  // Admin grana ide kroz getAdminSession — uključuje i DB provjeru da nalog
+  // još postoji (obrisani admin nema pristup ni mladenci rutama).
+  if (await getAdminSession(req)) {
+    return 'admin'
   }
 
   return null

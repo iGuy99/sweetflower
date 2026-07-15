@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getGalleryBySlug, getMediaById, deleteMediaRow } from '@/db/queries/galleries'
+import { getGalleryBySlug, getMediaByIdsForGallery, deleteMediaRows } from '@/db/queries/galleries'
 import { getCoupleOrAdminSession } from '@/lib/couple-auth'
 import { deleteKeys } from '@/lib/s3'
 import { rateLimit, clientIp } from '@/lib/rate-limit'
@@ -44,11 +44,9 @@ export async function POST(
       return NextResponse.json({ error: 'Nevažeća lista id-jeva' }, { status: 400 })
     }
 
-    // Vlasništvo: preskoči medije koji ne postoje ili ne pripadaju ovoj galeriji.
-    const rows = await Promise.all(ids.map((id: number) => getMediaById(id)))
-    const owned = rows.filter(
-      (row): row is NonNullable<typeof row> => row !== null && row.gallery_id === gallery.id
-    )
+    // Vlasništvo se provjerava u SQL-u (gallery_id filter) — jedan batch upit;
+    // nepostojeći/tuđi id-jevi jednostavno izostanu iz rezultata.
+    const owned = await getMediaByIdsForGallery(gallery.id, ids as number[])
 
     const keys: string[] = []
     for (const row of owned) {
@@ -59,7 +57,7 @@ export async function POST(
     // Prvo bucket, pa tek onda DB redovi — ako brisanje objekata padne, red
     // ostaje u bazi pa se pokušaj može ponoviti (nema "duhova" u bucketu).
     await deleteKeys(keys)
-    await Promise.all(owned.map((row) => deleteMediaRow(row.id)))
+    await deleteMediaRows(owned.map((row) => row.id))
 
     return NextResponse.json({ deleted: owned.length })
   } catch (error) {

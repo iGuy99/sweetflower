@@ -24,10 +24,6 @@ interface CoupleGalleryProps {
   theme: ResolvedTheme
 }
 
-// Preko ovoliko selektovanih fajlova, sekvencijalni pojedinačni download
-// postaje nepraktičan — koristi se ZIP ruta umjesto toga (Faza E).
-const DIRECT_DOWNLOAD_MAX = 5
-
 const BS_MONTHS = [
   'januara', 'februara', 'marta', 'aprila', 'maja', 'juna',
   'jula', 'augusta', 'septembra', 'oktobra', 'novembra', 'decembra',
@@ -49,10 +45,6 @@ function splitCoupleNames(value: string): [string, string] | null {
   return null
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
 export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleGalleryProps) {
   const [media, setMedia] = useState<MediaItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,16 +54,16 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
-  const [isDownloading, setIsDownloading] = useState(false)
 
   const formattedDate = formatEventDate(eventDate)
   const coupleNames = splitCoupleNames(title)
   const selectedCount = selected.size
 
-  const refreshMedia = useCallback(async () => {
+  const refreshMedia = useCallback(async (signal?: AbortSignal) => {
     try {
       const res = await fetch(`/api/galerija/${encodeURIComponent(slug)}/mladenci/media`, {
         cache: 'no-store',
+        signal,
       })
       if (!res.ok) return
       const data = (await res.json()) as { media?: MediaItem[] }
@@ -84,8 +76,46 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
   }, [slug])
 
   useEffect(() => {
-    void refreshMedia()
+    const controller = new AbortController()
+    void refreshMedia(controller.signal)
+    return () => controller.abort()
   }, [refreshMedia])
+
+  // Escape zatvara confirm modal (dialog semantika).
+  useEffect(() => {
+    if (!confirmDelete) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isDeleting) setConfirmDelete(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [confirmDelete, isDeleting])
+
+  // Scroll-lock dok je confirm modal otvoren (ista iOS-safe tehnika kao
+  // Lightbox; confirm se otvara samo u selection modu pa se ne sudara s njim).
+  useEffect(() => {
+    if (!confirmDelete) return
+    if (document.body.style.position === 'fixed') return
+    const scrollY = window.scrollY
+    const body = document.body
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    }
+    body.style.position = 'fixed'
+    body.style.top = `-${scrollY}px`
+    body.style.width = '100%'
+    body.style.overflow = 'hidden'
+    return () => {
+      body.style.position = prev.position
+      body.style.top = prev.top
+      body.style.width = prev.width
+      body.style.overflow = prev.overflow
+      window.scrollTo(0, scrollY)
+    }
+  }, [confirmDelete])
 
   const handleLogout = useCallback(async () => {
     await fetch('/api/auth/couple-logout', { method: 'POST' })
@@ -152,37 +182,19 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
     }
   }, [slug, selected])
 
-  const handleDownloadSelected = useCallback(async () => {
+  const handleDownloadSelected = useCallback(() => {
     const items = media.filter((m) => selected.has(m.id))
     if (items.length === 0) return
 
-    // > 5 fajlova: ZIP ruta (jedan HTTP zahtjev, server streamuje arhivu).
-    if (items.length > DIRECT_DOWNLOAD_MAX) {
-      const ids = items.map((m) => m.id).join(',')
-      const a = document.createElement('a')
-      a.href = `/api/galerija/${encodeURIComponent(slug)}/mladenci/zip?ids=${ids}`
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      return
-    }
-
-    setIsDownloading(true)
-    try {
-      // ≤ 5 fajlova: sekvencijalni pojedinačni download (mali razmak da
-      // browser ne blokira višestruke automatske downloade).
-      for (const item of items) {
-        const a = document.createElement('a')
-        a.href = item.downloadUrl
-        a.download = item.fileName
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
-        await sleep(150)
-      }
-    } finally {
-      setIsDownloading(false)
-    }
+    // Uvijek ZIP ruta, i za mali broj fajlova: browseri blokiraju višestruke
+    // programske downloade bez svježeg korisničkog gesta po fajlu (Chrome
+    // prikaže "downloads blocked" traku), pa je sekvencijalni pristup nepouzdan.
+    const ids = items.map((m) => m.id).join(',')
+    const a = document.createElement('a')
+    a.href = `/api/galerija/${encodeURIComponent(slug)}/mladenci/zip?ids=${ids}`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
   }, [slug, media, selected])
 
   return (
@@ -217,10 +229,10 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
                 type="button"
                 className="sf-couple__action-btn"
                 onClick={handleDownloadSelected}
-                disabled={selectedCount === 0 || isDownloading}
+                disabled={selectedCount === 0}
               >
                 <Download size={15} aria-hidden="true" />
-                {isDownloading ? 'Preuzimam...' : 'Preuzmi selektovano'}
+                Preuzmi selektovano
               </button>
               <button
                 type="button"
@@ -324,11 +336,19 @@ export default function CoupleGallery({ slug, title, eventDate, theme }: CoupleG
 
       {confirmDelete && (
         <div className="sf-couple__overlay" onClick={() => !isDeleting && setConfirmDelete(false)}>
-          <div className="sf-couple__modal" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="sf-couple__modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sf-couple-confirm-title"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="sf-couple__modal-icon">
               <AlertTriangle size={36} aria-hidden="true" />
             </div>
-            <h3>Obrisati {selectedCount} {selectedCount === 1 ? 'sliku' : 'slika'}?</h3>
+            <h3 id="sf-couple-confirm-title">
+              Obrisati {selectedCount} {selectedCount === 1 ? 'sliku' : 'slika'}?
+            </h3>
             <p>Ovo je trajno.</p>
             {deleteError && <p className="sf-couple__error">{deleteError}</p>}
             <div className="sf-couple__modal-actions">

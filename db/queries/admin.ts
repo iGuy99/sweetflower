@@ -3,7 +3,8 @@ import { query, queryOne, execute } from '../connection'
 
 // Dummy hash za izjednačavanje vremena kad username ne postoji (anti-enumeracija).
 // Bcrypt hash nasumičnog stringa — poređenje uvijek pada, ali troši isto vremena.
-const DUMMY_HASH = '$2b$10$CwTycUXWue0Thq9StjUM0uJ8DvywQnQK6i7g8Zt5eKQ4hV3pZ8pXe'
+// Exportovan: koristi ga i verifyCouplePassword (isti timing problem sa slugovima).
+export const DUMMY_HASH = '$2b$10$CwTycUXWue0Thq9StjUM0uJ8DvywQnQK6i7g8Zt5eKQ4hV3pZ8pXe'
 
 export interface AdminAccount {
   id: number

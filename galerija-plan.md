@@ -200,8 +200,20 @@ Rate limiting na upload endpointima (jednostavan in-memory limiter po IP-u).
    Bucket: CORS (ExposeHeaders ETag) + lifecycle (abort nedovršenih nakon 2 dana).
    ODGOĐENO (nije blocker): otkazivanje sibling in-flight dijelova na fatalnu grešku
    (samo bandwidth), resume preko sessionStorage nakon refresha (polish), LOW kozmetika.
-4. **Pregled** — javni grid + lightbox (lazy load, paginacija); mladenci stranica
-   (login, pregled, brisanje, download pojedinačno + ZIP).
+4. **Pregled / mladenci + admin role** — ✅ IZGRAĐENO LOKALNO (2026-07-14, Sonnet
+   po `galerija-admini-mladenci-sonnet-plan.md`): admin role (super/admin,
+   migracija 006, Admini modal — samo superadmin), mladenci stranica (couple
+   login sa rate limitom, tema galerije, lightbox — ekstrahovan u zajednički
+   Lightbox.tsx, selekcija, brisanje, streaming ZIP preko archiver-a).
+   Review popravke: timing anti-enumeracija na couple-loginu (dummy hash),
+   validateAdminToken sa DB provjerom postojanja naloga (revokacija — obrisani
+   admin gubi pristup odmah; STARI TOKENI NEVAŽEĆI nakon deploya, potrebna
+   ponovna prijava), batch IN upiti za brisanje, dialog semantika + labeli +
+   Escape + scroll-lock na modalima, "Preuzmi selektovano" uvijek ide ZIP-om
+   (browseri blokiraju višestruke programske downloade).
+   ODGOĐENO: window.confirm→custom modal za brisanje admina; lock-ownership
+   refaktor scroll-locka (teoretski slučaj); lightbox po id-u umjesto indexa.
+   DEPLOY REDOSLIJED: migracija 006 na prod bazu PRIJE pusha!
 5. **Polish + deploy** — OG meta tagovi, testiranje na iOS/Android (HEIC!),
    bucket CORS, produkcijski env, smoke test na produkciji.
 
@@ -219,9 +231,11 @@ Rate limiting na upload endpointima (jednostavan in-memory limiter po IP-u).
 > uz ?preview=1 (bez curenja medija — samo kozmetika); nepotrebni useCallback
 > wrapperi u ThemeEditor; teorijska iframe onLoad race (fix: sf-theme-ready
 > handshake ako se ikad pojavi "prva promjena se ne vidi").
-> PREOSTAJE: migracija 005 NIJE primijenjena (ni lokalno — Docker ugašen — ni
-> na produkciji!); manuelna browser verifikacija (editor, tamna tema,
-> dekoracije); NIJE pushano.
+> DEPLOYANO NA PRODUKCIJU 2026-07-14: migracija 005 primijenjena na prod bazu
+> PRIJE pusha (redoslijed bitan — novi kod SELECT-uje theme kolonu), push
+> 82aa538, deploy potvrđen (editor ruta 404→307). PREOSTAJE: korisnička
+> verifikacija na produkciji (editor, tamna tema, dekoracije, upload smoke
+> test); migracija 005 na LOKALNU dev bazu kad se Docker pokrene.
 
 Cilj: admin može po galeriji mijenjati boje, fontove, tekstove i dekoracije,
 birati između 5 gotovih templatea, uz **live preview** na posebnoj stranici za

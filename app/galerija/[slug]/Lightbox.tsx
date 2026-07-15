@@ -89,7 +89,6 @@ export default function Lightbox({ media, index, onClose, onNavigate }: Lightbox
       body.style.overflow = prev.overflow
       window.scrollTo(0, scrollY)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const onTouchStart = (e: React.TouchEvent) => {

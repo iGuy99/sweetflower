@@ -6,7 +6,7 @@ import { getGalleryBySlug } from '@/db/queries/galleries'
 import { resolveTheme, parseThemeColumn } from '@/lib/gallery-themes'
 import { verifyToken } from '@/lib/auth'
 import { COUPLE_COOKIE } from '@/lib/couple-auth'
-import { ADMIN_COOKIE } from '@/lib/admin-auth'
+import { ADMIN_COOKIE, validateAdminToken } from '@/lib/admin-auth'
 import CoupleLogin from './CoupleLogin'
 import CoupleGallery from './CoupleGallery'
 import '../gallery.css'
@@ -23,11 +23,8 @@ async function hasCoupleAccess(slug: string): Promise<boolean> {
     if (payload && payload.type === 'couple' && payload.slug === slug) return true
   }
 
-  const adminToken = cookieStore.get(ADMIN_COOKIE)?.value
-  if (adminToken) {
-    const payload = await verifyToken(adminToken)
-    if (payload && payload.type === 'admin') return true
-  }
+  // Uključuje i DB provjeru da admin nalog još postoji (revokacija).
+  if (await validateAdminToken(cookieStore.get(ADMIN_COOKIE)?.value)) return true
 
   return false
 }

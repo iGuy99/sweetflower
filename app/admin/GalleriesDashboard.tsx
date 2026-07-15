@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Plus, LogOut, Copy, Check, Trash2, Link2, Eye, EyeOff,
   Image as ImageIcon, HardDrive, AlertTriangle, X, Palette, Users, KeyRound,
@@ -346,21 +346,36 @@ function AdminsModal({ onClose }: { onClose: () => void }) {
   const [createError, setCreateError] = useState('')
   const [isCreating, setIsCreating] = useState(false)
 
-  const load = async () => {
+  const load = useCallback(async (signal?: AbortSignal) => {
     setLoadError('')
-    const res = await fetch('/api/admin/admins')
-    if (res.ok) {
-      const data = await res.json()
-      setAdmins(data.admins)
-    } else {
-      setLoadError('Greška pri učitavanju admina.')
+    try {
+      const res = await fetch('/api/admin/admins', { signal })
+      if (res.ok) {
+        const data = await res.json()
+        setAdmins(data.admins)
+      } else {
+        setLoadError('Greška pri učitavanju admina.')
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return
+      setLoadError('Greška u vezi. Pokušajte ponovo.')
     }
-  }
+  }, [])
 
   useEffect(() => {
-    void load()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    const controller = new AbortController()
+    void load(controller.signal)
+    return () => controller.abort()
+  }, [load])
+
+  // Escape zatvara modal (dialog semantika).
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
 
   const openReset = (id: number) => {
     setResetId(id)
@@ -461,11 +476,17 @@ function AdminsModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="gadmin-overlay" onClick={onClose}>
-      <div className="gadmin-modal gadmin-modal-wide" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="gadmin-modal gadmin-modal-wide"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="gadmin-admins-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button type="button" className="gadmin-modal-close" onClick={onClose} aria-label="Zatvori">
           <X size={20} />
         </button>
-        <h3>Admini</h3>
+        <h3 id="gadmin-admins-title">Admini</h3>
         <p className="gadmin-hint">Upravljanje admin nalozima (dostupno samo superadminu).</p>
 
         {loadError && <div className="gadmin-error">{loadError}</div>}
@@ -511,6 +532,7 @@ function AdminsModal({ onClose }: { onClose: () => void }) {
                     className="gadmin-input"
                     type="password"
                     placeholder="Nova lozinka (min. 8 znakova)"
+                    aria-label="Nova lozinka"
                     value={resetPassword}
                     onChange={(e) => setResetPassword(e.target.value)}
                   />
@@ -518,6 +540,7 @@ function AdminsModal({ onClose }: { onClose: () => void }) {
                     className="gadmin-input"
                     type="password"
                     placeholder="Potvrdi lozinku"
+                    aria-label="Potvrdi novu lozinku"
                     value={resetConfirm}
                     onChange={(e) => setResetConfirm(e.target.value)}
                   />
@@ -548,8 +571,9 @@ function AdminsModal({ onClose }: { onClose: () => void }) {
 
         <h3 className="gadmin-admins-subheading">Novi admin</h3>
         <form className="gadmin-form" onSubmit={handleCreate}>
-          <label className="gadmin-label">Korisničko ime</label>
+          <label className="gadmin-label" htmlFor="gadmin-new-username">Korisničko ime</label>
           <input
+            id="gadmin-new-username"
             className="gadmin-input"
             value={newUsername}
             onChange={(e) => setNewUsername(e.target.value)}
@@ -559,8 +583,9 @@ function AdminsModal({ onClose }: { onClose: () => void }) {
             required
           />
 
-          <label className="gadmin-label">Lozinka</label>
+          <label className="gadmin-label" htmlFor="gadmin-new-password">Lozinka</label>
           <input
+            id="gadmin-new-password"
             className="gadmin-input"
             type="password"
             value={newPassword}
@@ -569,8 +594,9 @@ function AdminsModal({ onClose }: { onClose: () => void }) {
             required
           />
 
-          <label className="gadmin-label">Potvrdi lozinku</label>
+          <label className="gadmin-label" htmlFor="gadmin-new-confirm">Potvrdi lozinku</label>
           <input
+            id="gadmin-new-confirm"
             className="gadmin-input"
             type="password"
             value={newConfirm}
