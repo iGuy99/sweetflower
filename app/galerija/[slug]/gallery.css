@@ -985,3 +985,13 @@
   font-family: var(--font-display), serif; /* običan serif '&' umjesto script */
   font-size: 0.6em; /* prilagodi da vizuelno sjedne uz imena */
 }
+
+/* ── Preview mod (admin editor iframe): sakrij scrollbar, skrol i dalje radi ── */
+html.sf-preview {
+  scrollbar-width: none;
+}
+html.sf-preview::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}

@@ -256,7 +256,12 @@ export default function GalleryClient({
       setLiveTheme(resolveTheme(validated))
     }
     window.addEventListener('message', onMessage)
-    return () => window.removeEventListener('message', onMessage)
+    // Sakrij scrollbar dokumenta u preview iframe-u (sadržaj ostaje skrolabilan).
+    document.documentElement.classList.add('sf-preview')
+    return () => {
+      window.removeEventListener('message', onMessage)
+      document.documentElement.classList.remove('sf-preview')
+    }
   }, [isPreview])
 
   // Na unmount: zaustavi queue i otkaži sve tekuće uploade (da se ne nastave
