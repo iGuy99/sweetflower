@@ -28,7 +28,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Pogrešni podaci za prijavu' }, { status: 401 })
     }
 
-    const token = await signToken({ adminId: admin.id, username: admin.username, type: 'admin' })
+    const token = await signToken({
+      adminId: admin.id,
+      username: admin.username,
+      type: 'admin',
+      role: admin.role,
+    })
 
     const response = NextResponse.json({ success: true })
     response.cookies.set(ADMIN_COOKIE, token, {

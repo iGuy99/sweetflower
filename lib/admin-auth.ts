@@ -13,3 +13,12 @@ export async function getAdminSession(req: NextRequest) {
 
   return payload
 }
+
+// Superadmin (role='super') smije upravljati admin nalozima. Stari tokeni
+// (izdati prije uvođenja role) nemaju `role` — tretiraju se kao obični admin.
+// Napomena: parametar je Record<string, unknown> (ne { role?: unknown } iz
+// plana) — JWTPayload iz jose ima samo index signature pa TS weak-type
+// detekcija odbija literalni oblik iz plana (TS2559).
+export function isSuperSession(payload: Record<string, unknown> | null): boolean {
+  return payload?.role === 'super'
+}
